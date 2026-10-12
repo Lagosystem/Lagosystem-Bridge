@@ -1,0 +1,154 @@
+name: Publish v0.2.0-beta.1 (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-bridge-beta1
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare unpublished beta draft
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Create draft release at exactly this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v0.2.0-beta.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "::error::Release already exists. No overwrite allowed."
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "::error::Tag already exists. No retargeting allowed."
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" --draft --prerelease --latest=false \
+            --target "$GITHUB_SHA" \
+            --title "Lagosystem Bridge v0.2.0-beta.1 (Experimental)" \
+            --notes-file docs/releases/v0.2.0-beta.1.md
+          echo "Draft created at $GITHUB_SHA. It remains unpublished on build failure."
+
+  native:
+    name: Native release binary (${{ matrix.os }})
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15]
+    env:
+      RELEASE_TAG: v0.2.0-beta.1
+      BRIDGE_CI_BUILD_DIR: .release-build/native
+      BRIDGE_CI_CONFIGURATION: Release
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Configure CMake MSVC Windows
+        if: runner.os == 'Windows'
+        run: cmake -S native -B .release-build/native -G "Visual Studio 17 2022" -A x64 -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
+      - name: Configure CMake GCC/Apple Clang
+        if: runner.os != 'Windows'
+        run: cmake -S native -B .release-build/native -DCMAKE_BUILD_TYPE=Release -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
+      - name: Compile C++20 Release binary and fixtures
+        run: cmake --build .release-build/native --config Release --parallel 2
+      - name: CTest fixtures with assertions in Release
+        run: ctest --test-dir .release-build/native -C Release --output-on-failure
+      - name: Verify embedded Windows PE manifest
+        if: runner.os == 'Windows'
+        run: node scripts/ci/check-windows-manifest.mjs
+      - name: Native Messaging integration (simulated browser adapters only)
+        run: node scripts/ci/test-native-messaging.mjs
+      - name: Package native host and SHA-256
+        run: node scripts/release/package.mjs native
+      - name: Upload native package to unpublished draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$RELEASE_TAG" .release-dist/*
+      - name: Clean temporary CMake and package trees on every outcome
+        if: always()
+        run: node scripts/release/cleanup.mjs
+
+  extensions:
+    name: Chromium and Firefox developer ZIPs
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      RELEASE_TAG: v0.2.0-beta.1
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Validate both MV3 manifests and shared scripts
+        run: node scripts/ci/check-extensions.mjs
+      - name: Package unsigned extensions with SHA-256
+        run: node scripts/release/package.mjs extensions
+      - name: Upload extension packages to unpublished draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$RELEASE_TAG" .release-dist/*
+      - name: Clean temporary packages even on failure
+        if: always()
+        run: node scripts/release/cleanup.mjs
+
+  publish:
+    name: Verify all ten assets and publish pre-release
+    needs: [native, extensions]
+    if: success()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Validate archive and SHA-256 names before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v0.2.0-beta.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=(
+            "lagosystem-bridge-v0.2.0-beta.1-windows-x64.zip"
+            "lagosystem-bridge-v0.2.0-beta.1-linux-x64.tar.gz"
+            "lagosystem-bridge-v0.2.0-beta.1-macos-arm64.tar.gz"
+            "lagosystem-bridge-v0.2.0-beta.1-chromium.zip"
+            "lagosystem-bridge-v0.2.0-beta.1-firefox.zip"
+          )
+          names="$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')"
+          for archive in "${expected[@]}"; do
+            for file in "$archive" "$archive.sha256"; do
+              if ! grep -Fxq "$file" <<< "$names"; then
+                echo "::error::Missing release asset: $file"
+                exit 1
+              fi
+            done
+          done
+          count="$(wc -l <<< "$names" | tr -d '[:space:]')"
+          test "$count" = 10 || { echo "::error::Expected 10 assets, got $count"; exit 1; }
+          gh release edit "$RELEASE_TAG" --draft=false --prerelease --latest=false
+          echo "Published $RELEASE_TAG with five packages and five checksums."
