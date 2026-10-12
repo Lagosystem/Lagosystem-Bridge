@@ -1,0 +1,62 @@
+name: Bridge CI (manual, no persistent caches)
+
+on:
+  workflow_dispatch:
+
+# No uploads, no Actions cache, no publishing, and no external secrets.
+permissions:
+  contents: read
+
+concurrency:
+  group: bridge-manual-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native-and-webextensions:
+    name: C++20 + Chromium/Firefox (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out public sources (no write credentials)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Node.js without installing/caching packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Configure MSVC CMake (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cmake -S native -B .ci-build/native -G "Visual Studio 17 2022" -A x64 -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
+
+      - name: Configure CMake (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cmake -S native -B .ci-build/native -DCMAKE_BUILD_TYPE=Debug -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
+
+      - name: Compile C++ host and synthetic fixtures
+        run: cmake --build .ci-build/native --config Debug --parallel 2
+
+      - name: Test synthetic C++ parser (no physical devices)
+        run: ctest --test-dir .ci-build/native -C Debug --output-on-failure
+
+      - name: Check Chromium and Firefox manifests and source parity
+        run: node scripts/ci/check-extensions.mjs
+
+      - name: Test browser adapters against actual C++ Native Messaging host
+        run: node scripts/ci/test-native-messaging.mjs
+
+      - name: Clean generated CMake caches, dependencies and build files
+        if: always()
+        run: node scripts/ci/cleanup.mjs
