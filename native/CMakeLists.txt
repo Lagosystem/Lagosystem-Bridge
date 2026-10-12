@@ -25,3 +25,12 @@ if(WIN32)
   target_link_libraries(lagosystem-bridge PRIVATE Comctl32)
 endif()
 # Deliberately no elevated installation service or local HTTP listener.
+
+# Offline protocol fixtures, opt-in only; this does not touch physical hardware.
+option(LAGOSYSTEM_BRIDGE_BUILD_TESTS "Build local protocol fixtures without peripherals" OFF)
+if(LAGOSYSTEM_BRIDGE_BUILD_TESTS)
+  enable_testing()
+  add_executable(bridge-scale-protocol-fixtures tests/scale_protocol_fixtures.cpp src/scale_protocol.cpp)
+  target_include_directories(bridge-scale-protocol-fixtures PRIVATE src)
+  add_test(NAME bridge-scale-protocol-fixtures COMMAND bridge-scale-protocol-fixtures)
+endif()
