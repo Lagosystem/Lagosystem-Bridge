@@ -47,8 +47,29 @@ runtime.onMessage.addListener((message, sender, reply) => {
       request.filename = message.filename;
       request.base64 = message.base64;
     }
-    try { return await runtime.sendNativeMessage(HOST, request); }
-    catch { return { ok: false, error: "native_host_unavailable" }; }
+    const saved = await storage.local.get("perOriginDevices");
+    const grants = saved.perOriginDevices && typeof saved.perOriginDevices === "object"
+      ? saved.perOriginDevices : {};
+    const own = Array.isArray(grants[url.origin]) ? grants[url.origin] : [];
+    if (["devices.probe", "devices.testPrint", "devices.unpair"].includes(message.action)
+        && !own.includes(request.deviceId))
+      return {ok:false,error:"device_not_paired_for_site"};
+    try {
+      const result = await runtime.sendNativeMessage(HOST, request);
+      if (message.action === "devices.paired" && result?.ok) {
+        return {...result, devices:(Array.isArray(result.devices) ? result.devices : [])
+          .filter((item) => own.includes(item.deviceId))};
+      }
+      if (result?.ok && message.action === "devices.pair") {
+        grants[url.origin] = Array.from(new Set([...own, request.deviceId]));
+        await storage.local.set({perOriginDevices:grants});
+      }
+      if (result?.ok && message.action === "devices.unpair") {
+        grants[url.origin] = own.filter(item => item !== request.deviceId);
+        await storage.local.set({perOriginDevices:grants});
+      }
+      return result;
+    } catch { return {ok:false,error:"native_host_unavailable"}; }
   })().then(reply).catch(() => reply({ ok: false, error: "bridge_error" }));
   return true;
 });
