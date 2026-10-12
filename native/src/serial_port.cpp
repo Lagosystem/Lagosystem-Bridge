@@ -1,5 +1,6 @@
 #include "serial_port.h"
 #include <algorithm>
+#include <cctype>
 #include <stdexcept>
 #include <string>
 #ifdef _WIN32
@@ -79,9 +80,21 @@ speed_t Speed(unsigned int baud) {
     }
 }
 bool AllowedDevicePath(const std::string& device) {
-    return device.rfind("/dev/ttyUSB", 0) == 0
-        || device.rfind("/dev/ttyACM", 0) == 0
-        || device.rfind("/dev/serial/by-id/", 0) == 0;
+#if defined(__APPLE__)
+    if (device.rfind("/dev/cu.", 0) != 0 || device.size() > 100
+        || device.find("..") != std::string::npos) return false;
+    return std::all_of(device.begin() + 8, device.end(), [](unsigned char c) {
+        return std::isalnum(c) || c == '_' || c == '-' || c == '.';
+    });
+#else
+    if (device.rfind("/dev/ttyUSB", 0) == 0)
+        return device.size() > 11 && std::all_of(device.begin() + 11, device.end(),
+            [](unsigned char c) { return std::isdigit(c); });
+    if (device.rfind("/dev/ttyACM", 0) == 0)
+        return device.size() > 11 && std::all_of(device.begin() + 11, device.end(),
+            [](unsigned char c) { return std::isdigit(c); });
+    return false;
+#endif
 }
 class NativeSerialPort final : public ISerialPort {
     int fd_ = -1;
@@ -91,7 +104,7 @@ public:
         if (fd_ >= 0) throw std::runtime_error("serial_already_open");
         if (!AllowedDevicePath(device) || device.find("..") != std::string::npos)
             throw std::runtime_error("unsupported_port_name");
-        int handle = open(device.c_str(), O_RDWR | O_NOCTTY | O_CLOEXEC);
+        int handle = open(device.c_str(), O_RDWR | O_NOCTTY | O_CLOEXEC | O_NOFOLLOW);
         if (handle < 0) throw std::runtime_error("serial_open_failed");
         termios state{};
         if (tcgetattr(handle, &state) != 0) { close(handle); throw std::runtime_error("serial_state_failed"); }
