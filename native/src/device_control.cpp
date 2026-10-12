@@ -2,6 +2,7 @@
 #include "device_control.h"
 #include "native_consent.h"
 #include "serial_port.h"
+#include "scale_protocol.h"
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -165,15 +166,14 @@ json Probe(const json& grant) {
     std::array<std::byte, 256> buffer{};
     const std::size_t length = port->Read(buffer);
     port->Close();
-    std::string sample;
-    sample.reserve(length);
-    for (std::size_t i = 0; i < length; ++i) {
-        const unsigned char ch = std::to_integer<unsigned char>(buffer[i]);
-        sample += ch >= 32 && ch < 127 ? static_cast<char>(ch) : '.';
-    }
-    // Raw sample is diagnostical. No claim of stable weight or calibrated measurement.
-    return {{"ok", true}, {"protocol", "ascii-stream"}, {"bytesRead", length},
-        {"sample", sample}, {"calibrationVerified", false}, {"stableWeightVerified", false}};
+    const WeightCandidate parsed = ParseAsciiScale(
+        std::span<const std::byte>(buffer.data(), length));
+    // Raw sample is diagnostics only; vendor verification and legal metrology remain false.
+    json result = {{"ok", true}, {"protocol", "ascii-stream"}, {"bytesRead", length},
+        {"sample", parsed.rawSample}, {"unit", parsed.unit},
+        {"calibrationVerified", false}, {"stableWeightVerified", false}};
+    if (parsed.numericWeight) result["candidateWeight"] = *parsed.numericWeight;
+    return result;
 }
 
 json TestPrint(const json& grant) {
