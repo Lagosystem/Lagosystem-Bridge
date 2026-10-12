@@ -28,7 +28,6 @@ set(SOURCES
     src/serial_port.cpp 
     src/device_control.cpp 
     src/scale_protocol.cpp
-    src/native_consent.cpp
 )
 
 add_executable(lagosystem-bridge ${SOURCES})
@@ -71,7 +70,7 @@ elseif(WIN32)
   target_sources(lagosystem-bridge PRIVATE src/native_consent.cpp resources/windows.rc)
   target_include_directories(lagosystem-bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
   target_compile_definitions(lagosystem-bridge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-  target_link_libraries(lagosystem-bridge PRIVATE Comctl32)
+  target_link_libraries(lagosystem-bridge PRIVATE Comctl32 Advapi32)
 endif()
 
 target_link_libraries(lagosystem-bridge PRIVATE nlohmann_json::nlohmann_json)
