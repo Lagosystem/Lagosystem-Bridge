@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Local Device Bridge window request v1",
+  "type": "object",
+  "required": [
+    "channel",
+    "direction",
+    "requestId",
+    "action"
+  ],
+  "properties": {
+    "channel": {
+      "const": "local-device-bridge-v1"
+    },
+    "direction": {
+      "const": "request"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "action": {
+      "enum": [
+        "detect",
+        "ping",
+        "capabilities",
+        "devices.list",
+        "devices.paired",
+        "devices.pair",
+        "devices.unpair",
+        "devices.probe",
+        "devices.testPrint",
+        "exports.save"
+      ]
+    },
+    "deviceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180
+    },
+    "kind": {
+      "enum": [
+        "scale",
+        "thermal",
+        "dotmatrix"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "ascii-stream",
+        "escpos",
+        "escp"
+      ]
+    },
+    "baudRate": {
+      "enum": [
+        1200,
+        2400,
+        4800,
+        9600,
+        19200,
+        38400,
+        57600,
+        115200
+      ]
+    },
+    "filename": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "base64": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

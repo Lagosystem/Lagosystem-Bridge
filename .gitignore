@@ -1,0 +1,25 @@
+# Build artifacts and local IDE state
+**/build/
+**/bin/
+**/obj/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.exe
+*.dll
+*.pdb
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.log
+*.tmp
+*.user
+*.suo
+# Keep sources, LICENSE and generated extension package code under version control.
