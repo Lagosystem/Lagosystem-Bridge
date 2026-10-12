@@ -1,0 +1,91 @@
+name: "🔌 Protocol or driver / Propor protocolo ou driver"
+description: "Propose an isolated device adapter, transport or protocol. / Proponha adaptador, transporte ou protocolo isolado."
+title: "[Protocol]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Device protocol proposal / Proposta de protocolo de dispositivo
+        
+        New adapters must respect explicit origin/device authorization, user-level execution, GPL compatibility and manufacturer documentation rights.
+        
+        Novos adaptadores devem respeitar autorização por origem/dispositivo, execução sem privilégios elevados, licença GPL e direitos sobre documentação de fabricantes.
+        
+        Reference / Referência: [Protocol v1](https://github.com/leonardo-nicolas/Lagosystem-Bridge/blob/main/protocol/README.md).
+  - type: dropdown
+    id: driverkind
+    attributes:
+      label: "Proposal category / Categoria da proposta"
+      options:
+        - "Scale protocol / Protocolo de balança"
+        - "Thermal printer (ESC/POS) / Impressora térmica"
+        - "Dot-matrix printer (ESC/P) / Impressora matricial"
+        - "Label printer (ZPL/TSPL/other) / Impressora de etiquetas"
+        - "Serial transport / Transporte serial"
+        - "USB HID / USB"
+        - "Network transport / Transporte de rede"
+        - "Protocol/API evolution / Evolução da API"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: "Target device or protocol / Equipamento ou protocolo"
+      description: "Specify the vendor/model or publicly documented protocol. / Informe fabricante/modelo ou protocolo público."
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: "Technical design / Desenho técnico"
+      description: "Framing, encoding, message structure, acknowledgments, error handling, timing and state. / Delimitação, codificação, mensagens, confirmações, erros, tempos e estado."
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: "Commands and response examples / Comandos e exemplos de resposta"
+      description: "Provide only non-sensitive data that you are authorized to share; examples can use pseudocode. / Forneça apenas dados autorizados e não sensíveis; pseudocódigo é aceito."
+    validations:
+      required: true
+  - type: textarea
+    id: documentation
+    attributes:
+      label: "Specifications and licensing / Especificações e licenciamento"
+      description: "Source and permission to implement/share this protocol; link public specs. / Origem e permissão para implementar/compartilhar; inclua links públicos."
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: "Consent, security and compatibility / Consentimento, segurança e compatibilidade"
+      description: "Explain scoped permissions, OS-native confirmation, safe defaults, existing protocol version and backward compatibility. / Explique permissões, confirmação nativa, padrões seguros, versão do protocolo e retrocompatibilidade."
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: "Synthetic fixtures and physical validation plan / Fixtures sintéticas e plano de homologação física"
+      description: "Include representative valid/invalid messages, expected behavior and physical test prerequisites; say what has NOT been tested. / Inclua amostras válidas/inválidas, resultados esperados, requisitos físicos e o que NÃO foi testado."
+    validations:
+      required: true
+  - type: dropdown
+    id: access
+    attributes:
+      label: "Access to physical hardware / Acesso ao equipamento físico"
+      options:
+        - "Available locally / Disponível localmente"
+        - "Available through collaborator / Disponível com colaborador"
+        - "Not available / Não disponível"
+        - "Not applicable / Não se aplica"
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: "Checklist / Confirmação"
+      options:
+        - label: "This proposal preserves scoped permission checks and will not claim real-device validation without evidence. / A proposta preserva autorizações por escopo e não afirmará homologação real sem evidências."
+          required: true

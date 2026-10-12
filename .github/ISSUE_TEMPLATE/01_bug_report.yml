@@ -1,0 +1,114 @@
+name: "🐛 Bug report / Relatar problema"
+description: "Report a reproducible defect in the native host, browser extensions, or integration. / Relate uma falha reproduzível no host, nas extensões ou na integração."
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before submitting / Antes de enviar
+        Thanks for helping improve Lagosystem Bridge! Please search existing issues first.
+        
+        **Do not disclose secrets, credentials, customer data, serial numbers linked to people, or security vulnerabilities here.** Report vulnerabilities privately according to [SECURITY.md](../../SECURITY.md).
+        
+        Obrigado por ajudar! Pesquise Issues existentes antes de abrir outra. **Não publique senhas, credenciais, dados de clientes ou vulnerabilidades nesta Issue.** Para segurança, siga o arquivo SECURITY.md.
+        
+        For general questions / Para dúvidas gerais: [Discussions](https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions).
+  - type: dropdown
+    id: component
+    attributes:
+      label: "Affected component / Componente afetado"
+      description: "Where does the problem appear? / Onde o problema aparece?"
+      options:
+        - "Native C++ host / Host nativo C++"
+        - "Chromium extension / Extensão Chromium"
+        - "Firefox extension / Extensão Firefox"
+        - "Native Messaging / Registration / Registro"
+        - "CMake / MSVC / Compiler / Compilação"
+        - "Device protocol / Protocolo de dispositivo"
+        - "Documentation / Documentação"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating system / Sistema operacional"
+      options:
+        - "Windows 11"
+        - "Windows 10"
+        - "Linux"
+        - "macOS"
+        - "Other / Outro"
+        - "Not applicable / Não se aplica"
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: "Browser / Navegador"
+      options:
+        - "Google Chrome"
+        - "Microsoft Edge"
+        - "Brave"
+        - "Chromium"
+        - "Firefox"
+        - "Firefox-based / Derivado do Firefox"
+        - "Opera / Opera GX"
+        - "Other / Outro"
+        - "Not applicable / Não se aplica"
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: "Versions / Versões"
+      description: "Bridge revision/version, browser version, compiler and/or OS build. / Revisão/versão do Bridge, navegador, compilador e/ou SO."
+      placeholder: "Bridge 0.2.0; Firefox 1xx; Windows 11 24H2; MSVC v143"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to reproduce / Passos para reproduzir"
+      description: "Provide numbered, minimal steps. / Informe etapas numeradas e mínimas."
+      placeholder: |
+        1. Install / Instalar...
+        2. Approve origin / Autorizar origem...
+        3. Call action / Chamar ação...
+        4. Observe / Observar...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior / Comportamento esperado"
+      description: "What should happen? / O que deveria acontecer?"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual behavior / Comportamento observado"
+      description: "What actually happened? Include exact sanitized error codes where relevant. / O que aconteceu? Inclua códigos de erro sem dados sensíveis."
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: "Device details (if relevant) / Dados do equipamento (se aplicável)"
+      description: "Manufacturer, model, connection, firmware, baud/parity and device type. / Fabricante, modelo, conexão, firmware, baud/paridade e tipo."
+      placeholder: "Example: Serial USB scale, 9600 baud, 8N1 (do not include personal/device identifiers)."
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Sanitized logs / Logs sem dados sensíveis"
+      description: "Paste minimal relevant error output. / Cole apenas a saída mínima relacionada ao problema."
+      render: text
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: "Checklist / Confirmação"
+      options:
+        - label: "I searched existing issues and removed all personal data, credentials and secrets. / Pesquisei Issues anteriores e removi todos os dados pessoais, credenciais e segredos."
+          required: true

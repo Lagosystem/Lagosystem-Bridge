@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "💬 Questions & community / Dúvidas e comunidade"
+    url: "https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions"
+    about: "Ask setup/integration questions and discuss ideas before opening actionable issues. / Tire dúvidas de instalação e integração e discuta ideias."
+  - name: "🔒 Security reports / Relatos de segurança"
+    url: "https://github.com/leonardo-nicolas/Lagosystem-Bridge/blob/main/SECURITY.md"
+    about: "Report vulnerabilities PRIVATELY as described in SECURITY.md. Never disclose exploits or sensitive data in public issues. / Relate vulnerabilidades PRIVADAMENTE."
+  - name: "📚 Developer documentation / Documentação"
+    url: "https://github.com/leonardo-nicolas/Lagosystem-Bridge#quick-links"
+    about: "Read the developer guides in English and Brazilian Portuguese. / Consulte os guias em inglês e português brasileiro."

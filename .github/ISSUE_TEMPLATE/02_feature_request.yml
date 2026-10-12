@@ -1,0 +1,70 @@
+name: "💡 Feature request / Sugerir melhoria"
+description: "Suggest a new feature, integration capability, or usability improvement. / Sugira uma função, integração ou melhoria de usabilidade."
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature proposal / Proposta de melhoria
+        
+        Keep the native bridge **vendor-neutral and independent** of Lagosystem ERP/SaaS. General design questions belong in [Discussions](https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions).
+        
+        Mantenha a ponte independente do ERP/SaaS Lagosystem e de fabricantes. Dúvidas de arquitetura podem ir para Discussions.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem to solve / Problema que deseja resolver"
+      description: "Describe the real scenario and who benefits. / Descreva o cenário real e quem se beneficiará."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Proposed solution / Solução proposta"
+      description: "Explain the expected behavior without assuming implementation details. / Explique o comportamento desejado."
+    validations:
+      required: true
+  - type: dropdown
+    id: impacted
+    attributes:
+      label: "Impacted components / Componentes envolvidos"
+      multiple: true
+      options:
+        - "C++ native host / Host C++"
+        - "Chromium extension / Extensão Chromium"
+        - "Firefox extension / Extensão Firefox"
+        - "Public protocol / Protocolo público"
+        - "Installers / Instaladores"
+        - "Documentation / Documentação"
+        - "Developer tooling / Ferramentas de desenvolvimento"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "Acceptance criteria / Critérios de aceite"
+      description: "What would make this feature complete? / O que torna essa função concluída?"
+      placeholder: |
+        - [ ] Users can...
+        - [ ] Users cannot bypass origin/device consent...
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives / Alternativas consideradas"
+      description: "Optional: workarounds or other approaches. / Opcional: contornos ou outras abordagens."
+  - type: textarea
+    id: security
+    attributes:
+      label: "Security and compatibility impact / Impacto na segurança e compatibilidade"
+      description: "State new permissions, device operations or backward-compatibility concerns; use 'None known' if applicable. / Informe novas permissões, operações de hardware ou riscos de compatibilidade; se não houver, escreva 'Nenhum conhecido'."
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: "Checklist / Confirmação"
+      options:
+        - label: "This request does not rely on privileged/root execution or unauthorized access to devices. / Esta proposta não exige execução privilegiada/root ou acesso não autorizado a dispositivos."
+          required: true

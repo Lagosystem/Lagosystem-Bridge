@@ -1,0 +1,115 @@
+name: "🖨️ Hardware compatibility / Suporte a hardware"
+description: "Request compatibility with a real peripheral and document its connection and protocol. / Solicite suporte a um periférico real informando conexão e protocolo."
+title: "[Hardware]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Hardware support / Suporte a equipamentos
+        
+        Describe **one manufacturer/model per request**. Please do not upload copyrighted proprietary manuals without permission. This project does not yet guarantee physical compatibility or legal-for-trade measurements.
+        
+        Descreva **um fabricante/modelo por solicitação**. Não anexe manuais proprietários sem autorização. O projeto ainda não garante compatibilidade física ou metrologia legal.
+        
+        For setup questions / Dúvidas de instalação: [Discussions](https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: "Device category / Categoria do dispositivo"
+      options:
+        - "Scale / Balança"
+        - "Thermal printer / Impressora térmica"
+        - "Dot-matrix printer / Impressora matricial"
+        - "Barcode scanner / Leitor de código de barras"
+        - "Label printer / Impressora de etiquetas"
+        - "Card/RFID reader / Leitor de cartão/RFID"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: input
+    id: vendor
+    attributes:
+      label: "Manufacturer / Fabricante"
+      placeholder: "Manufacturer name / Nome do fabricante"
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: "Model / Modelo"
+      description: "Commercial model identifier, not a private serial number. / Identificação comercial do modelo; não informe número de série privado."
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: "Firmware / Revision / Revisão"
+      description: "Optional; write 'Unknown' if relevant. / Opcional; escreva 'Desconhecido' quando necessário."
+  - type: dropdown
+    id: connection
+    attributes:
+      label: "Connection type / Tipo de conexão"
+      options:
+        - "USB-to-serial / COM / tty"
+        - "USB HID"
+        - "USB printer class / Impressora USB"
+        - "RS-232 serial"
+        - "Bluetooth"
+        - "Ethernet / TCP/IP"
+        - "Wi-Fi"
+        - "Parallel / Paralela"
+        - "Other / Outro"
+        - "Unknown / Desconhecido"
+    validations:
+      required: true
+  - type: dropdown
+    id: systems
+    attributes:
+      label: "Operating systems to support / Sistemas operacionais desejados"
+      multiple: true
+      options:
+        - "Windows 10/11"
+        - "Linux"
+        - "macOS"
+        - "Other / Outro"
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: "Known protocol and serial settings / Protocolo e parâmetros seriais conhecidos"
+      description: "Baud rate, data bits, parity, stop bits, framing, flow control, ESC/POS, ESC/P, ASCII stream, etc. If unknown, state this. / Baud, bits, paridade, parada, framing, fluxo etc. Se desconhecido, informe."
+      placeholder: "Example: 9600 baud, 8N1, no flow control, ASCII stream. / Exemplo: 9600 baud, 8N1, sem controle de fluxo."
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: "Desired operation / Operação desejada"
+      description: "Describe a real workflow, expected output, and whether user interaction is required. / Descreva uso real, resposta esperada e confirmação do usuário."
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: "Public documentation / Documentação pública"
+      description: "Public links, manufacturer documentation, permitted sample data. No proprietary uploads. / Links públicos, manuais disponíveis e amostras permitidas."
+  - type: dropdown
+    id: physical
+    attributes:
+      label: "Physical device available for validation? / Equipamento disponível para homologação?"
+      options:
+        - "Yes, I can test locally / Sim, posso testar localmente"
+        - "Yes, another contributor can test / Sim, outro colaborador pode testar"
+        - "No / Não"
+        - "Unknown / Ainda não sei"
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: "Checklist / Confirmação"
+      options:
+        - label: "I removed identifying/sensitive device data and understand that physical interoperability and legal certification are not guaranteed. / Removi dados sensíveis e entendo que interoperabilidade e certificação legal não são garantidas."
+          required: true
