@@ -1,4 +1,5 @@
 #include "serial_port.h"
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #ifdef _WIN32
