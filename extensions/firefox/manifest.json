@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Lagosystem Bridge",
+  "version": "0.1.0",
+  "description": "Secure Lagosystem local hardware and document bridge",
+  "permissions": [
+    "nativeMessaging"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bridge@lagosystem.com.br"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sistema.lagosystem.com.br/*",
+        "http://localhost:4200/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
