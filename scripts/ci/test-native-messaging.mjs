@@ -7,9 +7,11 @@ import {tmpdir} from 'node:os';
 import {spawnSync} from 'node:child_process';
 import {runInNewContext} from 'node:vm';
 
+const buildDir=process.env.BRIDGE_CI_BUILD_DIR??'.ci-build/native';
+const configuration=process.env.BRIDGE_CI_CONFIGURATION??'Debug';
 const binary=resolve(process.platform==='win32'
-  ? '.ci-build/native/Debug/lagosystem-bridge.exe'
-  : '.ci-build/native/lagosystem-bridge');
+  ? buildDir+'/'+configuration+'/lagosystem-bridge.exe'
+  : buildDir+'/lagosystem-bridge');
 assert.ok(existsSync(binary),'Host binary not found: '+binary);
 const home=mkdtempSync(join(tmpdir(),'bridge-ci-'));
 const channel='local-device-bridge-v1';

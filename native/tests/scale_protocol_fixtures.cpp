@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Offline tests use synthetic bytes, never a real device, and must not initiate a print.
 #include "../src/scale_protocol.h"
+// In release packages keep assertions enabled (NDEBUG would otherwise
+// disable every CTest assertion even when the fixture executes successfully).
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <cassert>
 #include <cmath>
 #include <cstddef>

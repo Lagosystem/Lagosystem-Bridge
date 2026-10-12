@@ -8,7 +8,9 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 
 assert.equal(process.platform, 'win32', 'Windows manifest check must run on Windows');
-const binary = resolve('.ci-build/native/Debug/lagosystem-bridge.exe');
+const buildDir = process.env.BRIDGE_CI_BUILD_DIR ?? '.ci-build/native';
+const configuration = process.env.BRIDGE_CI_CONFIGURATION ?? 'Debug';
+const binary = resolve(buildDir, configuration, 'lagosystem-bridge.exe');
 assert.ok(existsSync(binary), 'Compiled Windows host executable is absent: ' + binary);
 
 const sdkBase = join(process.env['ProgramFiles(x86)'] ?? 'C:\\Program Files (x86)',
