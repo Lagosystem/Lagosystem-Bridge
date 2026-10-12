@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.24)
+project(LagosystemBridge VERSION 0.1.0 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+find_package(nlohmann_json 3.11 REQUIRED)
+add_executable(lagosystem-bridge src/main.cpp)
+target_link_libraries(lagosystem-bridge PRIVATE nlohmann_json::nlohmann_json)
+if(WIN32)
+  target_compile_definitions(lagosystem-bridge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+endif()
+# Deliberately no elevated installation service or local HTTP listener.
