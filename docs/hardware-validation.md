@@ -61,3 +61,12 @@ Navegadores: Chrome, Edge, Brave, Firefox, Opera GX e versões derivados requere
 Guardar `OS, versão, arquitetura, navegador, extensão, SHA do host, fabricante, modelo, firmware, identificação física, protocolo, velocidade, bit/paridade, resultado real, responsável, data`. Nunca registrar dados completos de NF-e, CPF/CNPJ, chaves/certificados fiscais, conteúdo de documento ou credenciais bancárias nos logs do teste.
 
 **A ausência de hardware conectado neste ambiente impede afirmar aprovação de impressoras e balanças reais.** As fixtures constituem testes de software e permanecem não executadas até autorização de build/CI.
+
+## Registro do host no computador de teste
+
+Existem scripts de registro por usuário:
+
+- Windows PowerShell: native/Lagosystem.Bridge/install-windows.ps1, recebendo path absoluto do .exe e IDs da extensão Chrome/Edge/Brave pertinentes; Firefox é registrado com ID fixo.
+- Linux/macOS Bash: native/Lagosystem.Bridge/install-unix.sh, recebendo path absoluto do host executável e ID Chromium opcional; registra Firefox no perfil do usuário e, quando informado, Chrome/Chromium.
+
+Nenhum script compila, testa, chama periféricos nem modifica configurações globais. A extensão só indicará host pronto se ele já estiver compilado, registrado e disponível. Os scripts foram revisados estaticamente, não executados.
