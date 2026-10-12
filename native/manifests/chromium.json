@@ -1,0 +1,9 @@
+{
+  "name": "com.lagosystem.bridge",
+  "description": "Lagosystem C++ Native Messaging Bridge",
+  "path": "REPLACE_WITH_ABSOLUTE_PATH_TO_BINARY",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://REPLACE_WITH_PUBLISHED_EXTENSION_ID/"
+  ]
+}
