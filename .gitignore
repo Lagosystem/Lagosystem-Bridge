@@ -23,3 +23,9 @@
 *.user
 *.suo
 # Keep sources, LICENSE and generated extension package code under version control.
+
+# Ephemeral CI and beta packaging output
+.ci-build/
+.release-build/
+.release-staging/
+.release-dist/

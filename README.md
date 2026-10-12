@@ -35,6 +35,14 @@ The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdo
 
 [CI/CD cost controls, execution steps and cleanup / Controles de custos, execução e limpeza](docs/CI.md). The GitHub Actions matrix runs only after explicit manual authorization, on standard public runners, without persistent caches or artifacts. / A matriz executa apenas com autorização manual, runners padrão públicos e nenhum cache ou artefato persistido.
 
+## Beta release preparation / Preparação da versão beta
+
+The [v0.2.0-beta.1 release workflow](https://github.com/leonardo-nicolas/Lagosystem-Bridge/actions/workflows/release-beta1.yml) is available **only via manual workflow_dispatch**. It builds experimental native packages for Windows x64, Ubuntu 24.04 x64 and macOS ARM64, plus unsigned developer ZIPs for Chromium and Firefox. It publishes a prerelease **only when all checks and five SHA-256-paired packages are present**. It does not start on commits.
+
+O [workflow de publicação da beta](https://github.com/leonardo-nicolas/Lagosystem-Bridge/actions/workflows/release-beta1.yml) é **exclusivamente manual**. Ele prepara binários não assinados, pacotes de extensão para desenvolvimento e checksums SHA-256, mantendo a Release em rascunho se algum job falhar.
+
+[Release notes EN/PT-BR](docs/releases/v0.2.0-beta.1.md) · [Release workflow documentation](docs/CI.md)
+
 ## Quick links
 
 - [English: prerequisites, CMake commands, extension installation, JS example](docs/README.en.md)

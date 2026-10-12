@@ -77,3 +77,15 @@ recusa segura e executa compilação, fixtures e verificação das extensões,
 enquanto Ubuntu/macOS fazem a integração IPC real entre extensões simuladas
 e o executável. **Não há exceção de segurança ou desativação de validação
 de elevação em builds de produção.**
+
+## Manual beta publishing / Publicação manual da beta
+
+**Not the normal CI:** [Publish v0.2.0-beta.1 (manual)](https://github.com/leonardo-nicolas/Lagosystem-Bridge/actions/workflows/release-beta1.yml) is a separate `workflow_dispatch` action. It will **publish a public GitHub pre-release** if all jobs succeed.
+
+On branch `main`, after **specific approval to perform the release build and publication**, open the workflow and click **Run workflow**. The first job creates an *unpublished draft* linked to the current commit SHA. Next, Windows x64, Ubuntu x64 and macOS ARM64 compile C++ Release binaries, run CTest fixtures and Native Messaging checks, then upload packages and SHA-256 files **directly to the draft Release**. Another job validates and uploads the unsigned Chromium/Firefox development ZIPs. The final job checks all ten named files and publishes `v0.2.0-beta.1` with pre-release status. A failure leaves an unpublished draft for investigation; a subsequent run is intentionally blocked until that draft/tag is resolved manually.
+
+**PT-BR:** Este workflow não é o CI normal. Ao executar **Run workflow**, você autoriza compilar os três sistemas e **publicar publicamente a beta** somente se todos os jobs forem aprovados. O primeiro job prepara uma Release em rascunho vinculada ao SHA da execução; os demais compilam, validam, produzem os cinco pacotes e seus cinco checksums e enviam diretamente ao GitHub Releases. A publicação só acontece depois da conferência dos dez arquivos. Se algum job falhar, o rascunho não é publicado e a próxima tentativa exigirá resolver manualmente esse rascunho/tag.
+
+**Quota and cleanup:** only standard public GitHub-hosted runners. No `actions/cache`, `upload-artifact`, external registries, privileged physical devices or scheduled triggers. The release packages are deliberately retained as **GitHub Release assets**, not ephemeral Actions artifacts. The `scripts/release/cleanup.mjs` step removes `.release-build`, `.release-staging`, `.release-dist` and ordinary CMake caches with `if: always()`. Github may retain logs, release assets and operational metadata under its normal service rules. This cannot guarantee literally zero storage anywhere on GitHub.
+
+**Limitações:** arquivos de extensão não assinados; Windows sem Authenticode; macOS sem notarização; nenhum teste físico de balança/impressora; no CI dos runners Windows o host permanece protegido contra privilégios elevados. Consulte as [notas da beta](releases/v0.2.0-beta.1.md). 
