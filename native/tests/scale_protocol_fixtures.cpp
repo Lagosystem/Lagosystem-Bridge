@@ -21,7 +21,7 @@ int main() {
     assert(second.numericWeight.has_value() && std::fabs(*second.numericWeight - 250.5) < 0.00001);
     assert(second.unit == "g");
 
-    const std::string unknown = "XX\x02\x03device response";
+    const std::string unknown = "XX\x02\x03" "device response";
     const auto third = ParseAsciiScale(std::as_bytes(std::span(unknown.data(), unknown.size())));
     assert(!third.numericWeight.has_value());
     assert(third.rawSample.find("..") != std::string::npos);
