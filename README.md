@@ -41,7 +41,7 @@ The [v0.2.0-beta.1 release workflow](https://github.com/leonardo-nicolas/Lagosys
 
 O [workflow de publicação da beta](https://github.com/leonardo-nicolas/Lagosystem-Bridge/actions/workflows/release-beta1.yml) é **exclusivamente manual**. Ele prepara binários não assinados, pacotes de extensão para desenvolvimento e checksums SHA-256, mantendo a Release em rascunho se algum job falhar.
 
-[Release notes EN/PT-BR](docs/releases/v0.2.0-beta.1.md) · [Release workflow documentation](docs/CI.md)
+[Finalize existing v0.2.0-beta.1 draft / Publicar o rascunho sem recompilar](https://github.com/leonardo-nicolas/Lagosystem-Bridge/actions/workflows/finalize-beta1.yml) (verifies SHA-256 checksums and publishes the existing beta draft) · [Release notes EN/PT-BR](docs/releases/v0.2.0-beta.1.md) · [Release workflow documentation](docs/CI.md)
 
 ## Quick links
 
