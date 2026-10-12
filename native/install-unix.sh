@@ -8,7 +8,7 @@ exe="$1"
 if [ ! -f "$exe" ] || [ ! -x "$exe" ]; then echo "Host executable absent/not executable." >&2; exit 2; fi
 case "$exe" in /*) ;; *) echo "Host must be an absolute path." >&2; exit 2 ;; esac
 # This installer uses printf JSON; reject dangerous path characters rather than auto-escaping.
-if [[ "$exe" =~ [\"\] ]] || [[ "$exe" == *$'\n'* ]] || [[ "$exe" == *$'\r'* ]]; then
+if [[ "$exe" == *\"* || "$exe" == *\\* || "$exe" == *$'\n'* || "$exe" == *$'\r'* ]]; then
   echo "Unsafe executable path for JSON manifest." >&2; exit 2
 fi
 umask 077
