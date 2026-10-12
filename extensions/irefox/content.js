@@ -1,22 +1,25 @@
-/* Only injected on trusted configured SaaS origins; never expose chrome.runtime to the page. */
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Generic webpage adapter. Permission decisions live exclusively in the extension background.
+const CHANNEL = "local-device-bridge-v1";
+const VALID = new Set(["ping", "capabilities", "devices.list", "devices.paired",
+  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
 const origin = location.origin;
-const channel = "lagosystem-bridge-v1";
+window.postMessage({ channel: CHANNEL, direction: "ready", bridgeVersion: "0.2.0" }, origin);
 window.addEventListener("message", (event) => {
   if (event.source !== window || event.origin !== origin) return;
-  const input = event.data;
-  if (!input || typeof input !== "object" || input.channel !== channel
-    || input.direction !== "request" || typeof input.requestId !== "string"
-    || input.requestId.length > 100) return;
-  const allowed = ["ping", "capabilities", "exports.save"];
-  if (!allowed.includes(input.action)) return;
+  const request = event.data;
+  if (!request || request.channel !== CHANNEL || request.direction !== "request"
+      || typeof request.requestId !== "string" || request.requestId.length > 100
+      || !VALID.has(request.action)) return;
   const runtime = globalThis.browser?.runtime ?? globalThis.chrome.runtime;
-  runtime.sendMessage({
-    channel, action: input.action, filename: input.filename, base64: input.base64
-  }).then((response) => {
-    window.postMessage({ channel, direction: "response", requestId: input.requestId,
-      payload: response }, origin);
+  const payload = { channel: CHANNEL, action: request.action, deviceId: request.deviceId,
+    kind: request.kind, profile: request.profile, baudRate: request.baudRate,
+    filename: request.filename, base64: request.base64 };
+  runtime.sendMessage(payload).then((response) => {
+    window.postMessage({ channel: CHANNEL, direction: "response",
+      requestId: request.requestId, payload: response }, origin);
   }).catch(() => {
-    window.postMessage({ channel, direction: "response", requestId: input.requestId,
-      payload: { ok: false, error: "bridge_unavailable" } }, origin);
+    window.postMessage({ channel: CHANNEL, direction: "response",
+      requestId: request.requestId, payload: { ok: false, error: "extension_unavailable" } }, origin);
   });
 });
