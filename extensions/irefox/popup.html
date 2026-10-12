@@ -1,0 +1,10 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Local Bridge</title>
+<style>body{font:14px system-ui,sans-serif;margin:16px;min-width:290px;color:CanvasText;background:Canvas}
+button{padding:8px 12px;border-radius:8px;margin:8px 4px 2px 0;cursor:pointer}#site{overflow-wrap:anywhere;font-weight:600}
+p{line-height:1.45}small{opacity:.8}</style></head>
+<body><h3>Local Device Bridge</h3><p>Site atual: <span id="site">—</span></p>
+<p id="status" role="status">Verificando permissão...</p>
+<button id="grant" type="button">Autorizar este site</button>
+<button id="revoke" type="button">Revogar autorização</button>
+<p><small>Autorizar o site não autoriza periféricos. Cada dispositivo requer confirmação separada na máquina.</small></p>
+<script src="popup.js"></script></body></html>
