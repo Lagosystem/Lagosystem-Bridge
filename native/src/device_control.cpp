@@ -224,9 +224,6 @@ json DeviceDispatch(const json& request) {
         const std::string profile = request["profile"].get<std::string>();
         if (!ValidKindProfile(kind, profile)) throw std::runtime_error("invalid_protocol");
         const unsigned int baud = Baud(request);
-        if (std::find(Enumerate().begin(), Enumerate().end(), name) != Enumerate().end()) {
-            // Replaced below by a single enumeration: avoid mixing iterators from temporaries.
-        }
         const std::vector<std::string> detected = Enumerate();
         if (std::find(detected.begin(), detected.end(), name) == detected.end())
             throw std::runtime_error("device_not_detected");
