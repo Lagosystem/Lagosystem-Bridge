@@ -14,6 +14,7 @@ fi
 umask 077
 name="com.lagosystem.bridge.json"
 os="$(uname -s)"
+if [ "$os" != "Darwin" ] && [ "$os" != "Linux" ]; then echo "Unsupported OS." >&2; exit 2; fi
 if [ "$os" = "Darwin" ]; then
   firefox="$HOME/Library/Application Support/Mozilla/NativeMessagingHosts"
   chrome="$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts"
