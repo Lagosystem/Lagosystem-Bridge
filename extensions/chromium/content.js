@@ -4,7 +4,6 @@ const CHANNEL = "local-device-bridge-v1";
 const VALID = new Set(["detect", "ping", "capabilities", "devices.list", "devices.paired",
   "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
 const origin = location.origin;
-window.postMessage({ channel: CHANNEL, direction: "ready", bridgeVersion: "0.2.0" }, origin);
 window.addEventListener("message", (event) => {
   if (event.source !== window || event.origin !== origin) return;
   const request = event.data;
