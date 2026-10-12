@@ -57,7 +57,7 @@
     <Description>Open-source cross-platform native device bridge</Description>
     <Version>0.2.0</Version>
     <License>GPL-3.0-or-later</License>
-    <RepositoryUrl>https://github.com/leonardo-nicolas/Lagosystem-</RepositoryUrl>
+    <RepositoryUrl>https://github.com/leonardo-nicolas/Lagosystem-Bridge</RepositoryUrl>
   </PropertyGroup>
   
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
