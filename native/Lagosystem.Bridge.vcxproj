@@ -31,6 +31,13 @@
     <ClInclude Include=".\src\serial_port.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include=".\src\device_control.cpp" />
+    <ClCompile Include=".\src\native_consent.cpp" />
+    <ClCompile Include=".\src\scale_protocol.cpp" />
+    <ClCompile Include=".\src\serial_port.cpp" />
+    <ClCompile Include=".\src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="CMakeLists.txt" />
     <None Include="install-unix.sh" />
     <None Include="install-windows.ps1" />

@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 FetchContent_Declare(json
   URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+  URL_HASH SHA256=b8c4f440d46ce66432f8623eb3b99ef796ecf7cd25c7e3fc6f69c5e5bf50754b
 )
 FetchContent_MakeAvailable(json)
 
@@ -27,6 +28,7 @@ set(SOURCES
     src/serial_port.cpp 
     src/device_control.cpp 
     src/scale_protocol.cpp
+    src/native_consent.cpp
 )
 
 add_executable(lagosystem-bridge ${SOURCES})
