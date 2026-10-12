@@ -31,6 +31,10 @@ The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdo
 - [Discussions / Discussões](https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions) — questions, ideas and integration support; general questions should not become bug reports.
 - [Security policy / Política de segurança](SECURITY.md) — report vulnerabilities privately, never as a public Issue.
 
+## Manual CI / CI manual
+
+[CI/CD cost controls, execution steps and cleanup / Controles de custos, execução e limpeza](docs/CI.md). The GitHub Actions matrix runs only after explicit manual authorization, on standard public runners, without persistent caches or artifacts. / A matriz executa apenas com autorização manual, runners padrão públicos e nenhum cache ou artefato persistido.
+
 ## Quick links
 
 - [English: prerequisites, CMake commands, extension installation, JS example](docs/README.en.md)
