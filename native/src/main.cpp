@@ -10,6 +10,7 @@
 #include <string_view>
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "device_control.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -190,13 +191,29 @@ json Dispatch(const json& input)
     if (!input.is_object()) throw std::runtime_error("invalid_request");
     const std::string action = input.value("action", std::string{});
     if (action == "ping")
-        return {{"ok", true}, {"protocolVersion", 1}, {"host", "Lagosystem.Bridge"}};
+        return {{"ok", true}, {"protocolVersion", 1}, {"host", "LocalDeviceBridge"},
+                {"platform",
+#ifdef _WIN32
+                "windows"
+#elif defined(__APPLE__)
+                "macos"
+#else
+                "linux"
+#endif
+                }};
     if (action == "capabilities")
         return {{"ok", true}, {"protocolVersion", 1},
-                {"capabilities", json::array({"exports.save"})},
-                {"disabledUntilUserPairing", json::array({"serial", "printer", "filesystem.read", "filesystem.pick", "os.configure"})}};
+                {"capabilities", json::array({"exports.save", "devices.list", "devices.paired",
+                    "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"})},
+                {"protocols", json::array({"ascii-stream", "escpos", "escp"})},
+                {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint"})},
+                {"notImplemented", json::array({"filesystem.pick", "filesystem.read", "os.configure", "vendor.protocols"})}};
     if (action == "exports.save")
         return WriteExport(input);
+    if (action == "devices.list" || action == "devices.paired" ||
+        action == "devices.pair" || action == "devices.unpair" ||
+        action == "devices.probe" || action == "devices.testPrint")
+        return lagosystem::hardware::DeviceDispatch(input);
     throw std::runtime_error("unknown_or_unpaired_operation");
 }
 } // namespace
@@ -222,7 +239,11 @@ int main()
             {
                 // Only safe machine-readable error codes are returned, never paths or secrets.
                 const std::string_view code = error.what();
-                const bool known = code == "unknown_or_unpaired_operation" || code == "invalid_request"
+                const bool known = code.rfind("device_", 0) == 0 || code.rfind("policy_", 0) == 0
+                    || code.rfind("serial_", 0) == 0 || code.rfind("unsupported_", 0) == 0
+                    || code.rfind("invalid_", 0) == 0 || code == "user_denied"
+                    || code == "already_paired" || code == "no_user_profile"
+                    || code == "unknown_or_unpaired_operation" || code == "invalid_request"
                     || code == "invalid_filename" || code == "invalid_export_request"
                     || code == "invalid_base64" || code == "invalid_base64_padding"
                     || code == "invalid_base64_character" || code == "export_too_large"
