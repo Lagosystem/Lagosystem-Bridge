@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 #include "serial_port.h"
 #include <algorithm>
 #include <cctype>
