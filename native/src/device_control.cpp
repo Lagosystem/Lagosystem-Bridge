@@ -187,7 +187,8 @@ json TestPrint(const json& grant) {
         ". Confirm that the selected physical printer is connected, safe and has paper."))
         throw std::runtime_error("user_denied");
     // Minimal generic ASCII; no fiscal document, cut, cash drawer, beep or vendor action.
-    const std::string payload = "LOCAL DEVICE BRIDGE TEST\r\nSerial connection check\r\n\r\n";
+    const std::string payload = std::string("\x1b@", 2)
+        + "LOCAL DEVICE BRIDGE TEST\r\nSerial connection check\r\n\r\n";
     SerialSettings settings;
     settings.baudRate = grant.at("baudRate").get<unsigned int>();
     settings.timeoutMs = 1200;
@@ -227,9 +228,16 @@ json DeviceDispatch(const json& request) {
         const std::vector<std::string> detected = Enumerate();
         if (std::find(detected.begin(), detected.end(), name) == detected.end())
             throw std::runtime_error("device_not_detected");
-        for (const json& grant : grants)
-            if (grant.value("deviceId", std::string{}) == name)
-                throw std::runtime_error("already_paired");
+        for (const json& grant : grants) {
+            if (grant.value("deviceId", std::string{}) == name) {
+                // A new authorized website still needs native confirmation; the grant
+                // itself belongs to this OS user, not to any one cloud product.
+                if (!ui::ConfirmDeviceAction("Authorize another local application?",
+                    "Permit the calling approved application to use the already paired device " + name + "?"))
+                    throw std::runtime_error("user_denied");
+                return {{"ok", true}, {"deviceId", name}, {"paired", true}};
+            }
+        }
         if (!ui::ConfirmDeviceAction("Allow this local peripheral?",
             "Device: " + name + "\nType: " + kind + "\nProtocol: " + profile +
             "\nSpeed: " + std::to_string(baud) +
