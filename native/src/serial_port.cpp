@@ -34,6 +34,7 @@ public:
         state.BaudRate = settings.baudRate;
         state.ByteSize = settings.dataBits;
         state.Parity = settings.evenParity ? EVENPARITY : NOPARITY;
+        if (settings.dataBits != 7 && settings.dataBits != 8) { CloseHandle(handle); throw std::runtime_error("serial_config_failed"); }
         state.StopBits = settings.stopBits == 2 ? TWOSTOPBITS : ONESTOPBIT;
         state.fBinary = TRUE;
         state.fParity = settings.evenParity ? TRUE : FALSE;
@@ -110,6 +111,7 @@ public:
         if (tcgetattr(handle, &state) != 0) { close(handle); throw std::runtime_error("serial_state_failed"); }
         cfmakeraw(&state);
         state.c_cflag &= ~CSIZE;
+        if (settings.dataBits != 7 && settings.dataBits != 8) { close(handle); throw std::runtime_error("serial_config_failed"); }
         state.c_cflag |= settings.dataBits == 7 ? CS7 : CS8;
         state.c_cflag |= CREAD | CLOCAL;
         state.c_cflag &= ~PARENB;
