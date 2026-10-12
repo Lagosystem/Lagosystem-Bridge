@@ -1,0 +1,32 @@
+name: Finalize existing v0.2.0-beta.1 draft (manual; no rebuild)
+
+on:
+  workflow_dispatch:
+
+# This recovery workflow intentionally NEVER builds or runs the C++ host.
+# The previous release workflow already built/tested/uploaded every package.
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-bridge-beta1
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish-existing-draft:
+    name: Verify 10 uploaded assets + SHA-256 and publish existing draft
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Get the release verification script without write credentials
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Verify the existing beta draft and publish if checksums match
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: v0.2.0-beta.1
+          # Immutable SHA of the source already compiled in the initial run #1.
+          EXPECTED_TARGET_SHA: 0580206ef98ea1999cae541175b7715c76bf4191
+        shell: bash
+        run: bash scripts/release/finalize-beta1.sh
