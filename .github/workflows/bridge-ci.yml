@@ -55,6 +55,10 @@ jobs:
       - name: Check Chromium and Firefox manifests and source parity
         run: node scripts/ci/check-extensions.mjs
 
+      - name: Verify Windows executable embeds Common Controls v6 (fail fast)
+        if: runner.os == 'Windows'
+        run: node scripts/ci/check-windows-manifest.mjs
+
       - name: Test browser adapters against actual C++ Native Messaging host
         run: node scripts/ci/test-native-messaging.mjs
 

@@ -96,5 +96,13 @@
     <None Include="LICENSE" />
     <None Include="README.md" />
   </ItemGroup>
+  <!-- Keep the manually-authored MSVC project consistent with CMake.
+       Common Controls v6 MUST be in the embedded application manifest. -->
+  <ItemDefinitionGroup>
+    <Link>
+      <GenerateManifest>true</GenerateManifest>
+      <AdditionalOptions>/MANIFEST:EMBED /MANIFESTINPUT:"$(ProjectDir)resources\windows-app.manifest" %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

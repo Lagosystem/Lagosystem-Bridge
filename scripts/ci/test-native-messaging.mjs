@@ -15,7 +15,7 @@ const home=mkdtempSync(join(tmpdir(),'bridge-ci-'));
 const channel='local-device-bridge-v1';
 let calls=0;
 
-function native(request) {
+function native(request, allowElevatedRefusal = false) {
   calls++;
   const body=Buffer.from(JSON.stringify(request),'utf8');
   const header=Buffer.alloc(4);
@@ -26,7 +26,15 @@ function native(request) {
     env:{...process.env,HOME:home,USERPROFILE:home,LOCALAPPDATA:home}
   });
   if(response.error) throw response.error;
-  assert.equal(response.status,0,'Native process failed: '+response.stderr?.toString());
+  if (allowElevatedRefusal && process.platform === 'win32' && response.status === 3) {
+    assert.match(response.stderr?.toString() ?? '', /refuses elevated\/root execution/,
+      'Windows elevated-process denial should be explicit and safe');
+    return {elevatedRefusal: true};
+  }
+  const exitHex = (response.status >>> 0).toString(16).toUpperCase().padStart(8, '0');
+  assert.equal(response.status, 0,
+    'Native process failed (exit 0x' + exitHex + ', decimal ' + response.status +
+    '): ' + response.stderr?.toString());
   assert.ok(response.stdout.length>=4,'Missing native response length');
   const count=response.stdout.readUInt32LE(0);
   assert.ok(count>0 && count<=1048576);
@@ -90,7 +98,17 @@ async function content(family,background) {
 }
 
 try {
-  assert.equal(native({action:'ping'}).protocolVersion,1);
+  const first = native({action:'ping'}, true);
+  if (first.elevatedRefusal) {
+    // GitHub-hosted Windows runners run with an elevated administrator token.
+    // The production C++ host MUST continue to fail closed instead of allowing
+    // native device operations as administrator. Other platforms exercise the
+    // full real-host + browser adapter integration with an unprivileged token.
+    console.log('Windows host correctly refused elevated execution (exit 3).');
+    console.log('Skipping native IPC in elevated Windows CI; C++ fixtures and both');
+    console.log('browser manifest/source checks already ran; Linux/macOS test real IPC.');
+  } else {
+  assert.equal(first.protocolVersion,1);
   assert.equal(native({action:'does.not.exist'}).error,'unknown_or_unpaired_operation');
   for(const family of ['chromium','firefox']) {
     const bridge=extension(family);
@@ -123,6 +141,7 @@ try {
     console.log(family+': real native host + simulated extension messaging verified');
   }
   console.log('C++ framing and browser-origin/device checks passed (no hardware involved)');
+  }
 }finally{
   rmSync(home,{recursive:true,force:true});
 }

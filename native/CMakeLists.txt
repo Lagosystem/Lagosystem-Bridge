@@ -71,6 +71,14 @@ elseif(WIN32)
   target_include_directories(lagosystem-bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
   target_compile_definitions(lagosystem-bridge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
   target_link_libraries(lagosystem-bridge PRIVATE Comctl32 Advapi32)
+  # TaskDialogIndirect is exported by Common Controls v6, not the legacy v5.
+  # Merge the checked-in asInvoker + Common-Controls v6 manifest into the PE.
+  # Keeping windows.rc for VERSIONINFO alone does NOT embed this manifest.
+  if(MSVC)
+    target_link_options(lagosystem-bridge PRIVATE
+      "/MANIFEST:EMBED"
+      "/MANIFESTINPUT:${CMAKE_CURRENT_SOURCE_DIR}/resources/windows-app.manifest")
+  endif()
 endif()
 
 target_link_libraries(lagosystem-bridge PRIVATE nlohmann_json::nlohmann_json)

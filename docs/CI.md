@@ -52,3 +52,28 @@ O workflow **não usa** `actions/cache`, `upload-artifact`, publicação de rele
 Consequentemente, o fluxo foi projetado para **não acumular cache ou artefatos cobrados entre execuções**, e utilizar somente minutos gratuitos dos runners padrão para repositórios públicos. Logs e metadados de execução podem permanecer no GitHub conforme as políticas do serviço.
 
 Para verificar o consumo e as regras vigentes, consulte [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions). Nenhum workflow deve ser iniciado ou repetido sem a autorização específica do proprietário.
+
+
+## Windows TaskDialog and elevated runner / Windows TaskDialog e runner elevado
+
+The Windows executable depends on `TaskDialogIndirect` from Common Controls v6.
+The Windows CI checks the embedded PE manifest (`RT_MANIFEST` resource ID 1)
+with the Windows SDK `mt.exe` before executing the native host. Both the CMake
+build and the standalone MSVC `.vcxproj` must include
+`native/resources/windows-app.manifest`, not merely the VERSIONINFO `.rc` file.
+
+GitHub-hosted Windows runners use elevated administrator contexts. The production
+host intentionally rejects elevated execution with exit code **3**. The Windows
+test therefore verifies that explicit security refusal; it never bypasses it.
+Linux and macOS validate the full Native Messaging IPC integration with the C++
+binary and simulated Chromium/Firefox adapters. The Windows C++ build, synthetic
+C++ fixtures, browser manifests and shared scripts still run normally.
+
+**PT-BR:** O `TaskDialogIndirect` exige o Common Controls v6 incorporado no
+manifesto do EXE; o CI confere esse recurso com `mt.exe` antes do teste IPC.
+Os runners Windows hospedados usam contexto administrativo e o Bridge deve
+recusar esse privilégio (código **3**). Portanto, o job Windows valida a
+recusa segura e executa compilação, fixtures e verificação das extensões,
+enquanto Ubuntu/macOS fazem a integração IPC real entre extensões simuladas
+e o executável. **Não há exceção de segurança ou desativação de validação
+de elevação em builds de produção.**
