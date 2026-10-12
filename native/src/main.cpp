@@ -226,7 +226,7 @@ int main()
 #endif
     if (IsElevated())
     {
-        std::fputs("Lagosystem.Bridge refuses elevated/root execution.\n", stderr);
+        std::fputs("LocalDeviceBridge refuses elevated/root execution.\n", stderr);
         return 3;
     }
     try
@@ -256,6 +256,6 @@ int main()
             }
         }
     }
-    catch (const std::exception&) { std::fputs("Lagosystem.Bridge protocol error.\n", stderr); return 4; }
+    catch (const std::exception&) { std::fputs("LocalDeviceBridge protocol error.\n", stderr); return 4; }
     return 0;
 }
