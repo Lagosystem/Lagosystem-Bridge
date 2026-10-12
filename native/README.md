@@ -23,14 +23,14 @@ A marca de distribuição é Lagosystem; **a API e o host não consultam nenhum 
 ### Configuração CMake (não executada)
 
 ```sh
-cmake -S native/Lagosystem.Bridge -B build/native-bridge -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
+cmake -S native -B build/native-bridge -DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON
 cmake --build build/native-bridge --config Release
 ctest --test-dir build/native-bridge --output-on-failure
 ```
 
-Dependência: `nlohmann_json >= 3.11` no CMake. Se GTK3 não estiver disponível no Linux, o host pode compilar, mas não consegue autorizar novos dispositivos via interface gráfica. Não abrir permissão para todos os usuários como substituto.
+Dependência: `nlohmann_json 3.11.3 via FetchContent com SHA-256` no CMake. Se GTK3 não estiver disponível no Linux, o host pode compilar, mas não consegue autorizar novos dispositivos via interface gráfica. Não abrir permissão para todos os usuários como substituto.
 
-**Testes automáticos/fixtures não foram executados**: CI/build exigem autorização específica. A execução do testador físico requer dispositivo e usuário presente na máquina, vide `docs/LOCAL-BRIDGE-VALIDATION.md`.
+**Testes automáticos/fixtures não foram executados**: CI/build exigem autorização específica. A execução do testador físico requer dispositivo e usuário presente na máquina, vide `../docs/hardware-validation.md`.
 
 ## Instalação Native Messaging sem privilégios de administrador
 
@@ -42,6 +42,6 @@ Após compilar e assinar o executável, o usuário deve instalar sua própria c�
 
 **Linux/macOS (Bash sem sudo/root):**
 
-    bash native/Lagosystem.Bridge/install-unix.sh /caminho/absoluto/lagosystem-bridge <ID_PUBL_CHROME>
+    bash native/install-unix.sh /caminho/absoluto/lagosystem-bridge <ID_PUBL_CHROME>
 
 O ID Chromium deve ser realmente atribuído à extensão instalada (32 letras a–p); o Firefox usa o ID fixo declarado no manifesto. Os exemplos acima contêm placeholders: substituí-los por paths e IDs reais. No macOS usar o caminho real do binário compilado para sua arquitetura; distribuir uma aplicação apropriadamente assinada/notarizada pode ser necessário para evitar bloqueios do Gatekeeper.

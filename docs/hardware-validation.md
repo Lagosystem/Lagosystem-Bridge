@@ -66,7 +66,7 @@ Guardar `OS, versão, arquitetura, navegador, extensão, SHA do host, fabricante
 
 Existem scripts de registro por usuário:
 
-- Windows PowerShell: native/Lagosystem.Bridge/install-windows.ps1, recebendo path absoluto do .exe e IDs da extensão Chrome/Edge/Brave pertinentes; Firefox é registrado com ID fixo.
-- Linux/macOS Bash: native/Lagosystem.Bridge/install-unix.sh, recebendo path absoluto do host executável e ID Chromium opcional; registra Firefox no perfil do usuário e, quando informado, Chrome/Chromium.
+- Windows PowerShell: native/install-windows.ps1, recebendo path absoluto do .exe e IDs da extensão Chrome/Edge/Brave pertinentes; Firefox é registrado com ID fixo.
+- Linux/macOS Bash: native/install-unix.sh, recebendo path absoluto do host executável e ID Chromium opcional; registra Firefox no perfil do usuário e, quando informado, Chrome/Chromium.
 
 Nenhum script compila, testa, chama periféricos nem modifica configurações globais. A extensão só indicará host pronto se ele já estiver compilado, registrado e disponível. Os scripts foram revisados estaticamente, não executados.

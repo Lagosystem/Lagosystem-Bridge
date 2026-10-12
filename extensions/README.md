@@ -5,7 +5,7 @@
 Este projeto usa "Lagosystem" apenas como marca de distribuição. **Nenhum login, API, token de sessão, tenant, usuário ou endpoint do SaaS Lagosystem é necessário** para sua instalação ou funcionamento. Sites HTTPS de outros desenvolvedores podem usar a extensão depois de o usuário **autorizar aquele domínio no popup** e confirmar localmente o pareamento do periférico.
 
 - Código-fonte das duas variantes: GNU GPL v3, licença integral em `chromium/LICENSE` e `firefox/LICENSE`.
-- Host nativo também: GPL v3, em `native/Lagosystem.Bridge/LICENSE`.
+- Host nativo também: GPL v3, em `../native/LICENSE`.
 - O ERP SaaS, a API ASP.NET Core e os módulos empresariais **não** são publicados nem automaticamente relicenciados, pois são componentes distribuídos separadamente com comunicação protocolar. A separação técnica não determina, sozinha, a análise jurídica de obra derivada/combinação GPL; revisar licenças de terceiros antes de lançar builds públicas.
 - O nome `com.lagosystem.bridge` identifica o host perante o navegador, **não é um endereço de rede** e não implica dependência da marca.
 
@@ -22,7 +22,7 @@ Este projeto usa "Lagosystem" apenas como marca de distribuição. **Nenhum logi
 
 - Pastas `chromium/` e `firefox/` são pacotes distintos, cada um com `manifest.json`, `background.js`, `content.js`, `popup.html`, `popup.js` e `LICENSE`.
 - Para testar a extensão no Chrome/Edge, carregar a pasta `chromium/` como extensão descompactada. No Firefox, usar ferramenta de depuração de extensões e pasta `firefox/`; para distribuição pública, validar empacotamento/assinatura e política AMO.
-- Para usar o host, criar arquivo Native Messaging próprio **por navegador**, substituindo os marcadores de caminho e ID em `native/Lagosystem.Bridge/manifests/`. Sem isso, a extensão é detectada mas `ping` informa host ausente.
+- Para usar o host, criar arquivo Native Messaging próprio **por navegador**, substituindo os marcadores de caminho e ID em `native/manifests/`. Sem isso, a extensão é detectada mas `ping` informa host ausente.
 - Para macOS, a instalação do manifest nativo e os executáveis assinados/notarizados podem variar segundo o navegador e política Gatekeeper. Drivers seriais só aparecem se o sistema tiver suporte a eles.
 - Opera GX, Brave e navegadores derivados devem ser testados individualmente; não presumir que leiam a mesma pasta de manifestos do Chrome.
 
@@ -56,4 +56,4 @@ const result = await requestLocalDevice("devices.pair", {
 
 O código de exemplo pressupõe que o **site já foi autorizado no popup**, que o host esteja instalado e que uma porta COM exista na máquina. Não garante nem realiza pesagem real ou testes físicos por si só.
 
-Documentação mais detalhada: `docs/LOCAL-BRIDGE.md` e `docs/LOCAL-BRIDGE-VALIDATION.md`.
+Documentação mais detalhada: `../docs/architecture.md` e `../docs/hardware-validation.md`.

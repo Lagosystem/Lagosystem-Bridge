@@ -32,7 +32,7 @@ O browser lança o **host nativo por usuário**, sem serviços elevados ou porta
 
 ### Extensão
 
-As pastas `extensions/lagosystem-bridge/chromium/` e `extensions/lagosystem-bridge/firefox/` possuem manifestos MV3 próprios e scripts incluídos em cada pacote.
+As pastas `extensions/chromium/` e `extensions/firefox/` possuem manifestos MV3 próprios e scripts incluídos em cada pacote.
 
 - Chrome, Edge, Brave e outros Chromium usam `background.service_worker`; o manifesto de host utiliza `allowed_origins` com o ID real da extensão publicada **sem wildcard**.
 - Firefox usa `background.scripts` no MV3 e a identidade `bridge@lagosystem.com.br`; seu manifesto de host usa `allowed_extensions` com a ID exata.
@@ -46,12 +46,12 @@ No Windows, instalar o executável no perfil do usuário e registrar caminhos JS
 
 No Linux, salvar manifestos por usuário nos diretórios NativeMessagingHosts definidos pelo browser (Chrome/Chromium em `~/.config/.../NativeMessagingHosts/`, Firefox conforme distribuição). Firefox Snap/Flatpak pode precisar de portal/proxy Native Messaging específico da distribuição. Rodar sem root e dar acesso a portas seriais somente pelo grupo/política do usuário, com mínimos privilégios. Nunca adicionar Linux `root` ao grupo de execução ou conceder permissões globais de escrita em `/dev`.
 
-Os arquivos de `native/Lagosystem.Bridge/manifests/` são **templates**; `REPLACE_WITH_ABSOLUTE_PATH_TO_BINARY` e `REPLACE_WITH_PUBLISHED_EXTENSION_ID` não devem ser enviados a cliente sem substituição. Um instalador assinado deve fazer registro por usuário e permitir remoção. Não incluí um instalador executável nesta fase.
+Os arquivos de `native/manifests/` são **templates**; `REPLACE_WITH_ABSOLUTE_PATH_TO_BINARY` e `REPLACE_WITH_PUBLISHED_EXTENSION_ID` não devem ser enviados a cliente sem substituição. Um instalador assinado deve fazer registro por usuário e permitir remoção. Não incluí um instalador executável nesta fase.
 
 ### Compilação (referência, não executado nesta entrega)
 
 ```text
-cmake -S native/Lagosystem.Bridge -B build/Lagosystem.Bridge
+cmake -S native -B build/Lagosystem.Bridge
 cmake --build build/Lagosystem.Bridge --config Release
 ```
 
@@ -95,4 +95,4 @@ As caixas de confirmação são nativas: TaskDialogIndirect no Windows 10/11, GT
 
 O host dispõe de leitura passiva de balanças ASCII, peso candidato não certificado, inicialização limitada de impressoras ESC/POS ou ESC/P e texto de teste; não há drivers de marca, HID/USB proprietário, impressão fiscal homologada ou alterações privilegiadas do SO.
 
-Ver docs/LOCAL-BRIDGE-VALIDATION.md para testes físicos e extensions/lagosystem-bridge/README.md para instalação GPL por navegador. Nenhum ensaio físico, build ou CI foi executado.
+Ver hardware-validation.md para testes físicos e extensions/README.md para instalação GPL por navegador. Nenhum ensaio físico, build ou CI foi executado.

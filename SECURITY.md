@@ -6,7 +6,7 @@
 
 ## Non-negotiable guarantees / Requisitos obrigatórios
 
-- No elevated administrator/root host process or fallback to \`sudo\`/UAC.
+- No elevated administrator/root host process or fallback to `sudo`/UAC.
 - Do not add arbitrary shell execution, unrestricted filesystem access, global network services, wildcard extension IDs or browser-origin wildcard authorization.
 - Origin approval must be performed inside the extension UI, not inferred from incoming web-page messages.
 - Device permission must be scoped to an explicitly approved site and a locally confirmed device; revocation must work.

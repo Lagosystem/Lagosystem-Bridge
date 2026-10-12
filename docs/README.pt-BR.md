@@ -6,12 +6,12 @@ O Lagosystem Bridge é uma ponte **experimental e open-source GPL-3.0-or-later**
 
 ## Organização do monorepo
 
-- \`native/\`: host C++20, CMake, projeto MSVC, comunicação serial, diálogos nativos e scripts de instalação.
-- \`extensions/chromium/\`: extensão Manifest V3 para navegadores Chromium-based.
-- \`extensions/firefox/\`: extensão Manifest V3 para Firefox, com identificador próprio.
-- \`protocol/\`: contrato público, ações e exemplos da comunicação \`local-device-bridge-v1\`.
-- \`docs/architecture.md\` e \`docs/hardware-validation.md\`: arquitetura e roteiro de homologação.
-- \`docs/README.en.md\`: guia equivalente em inglês.
+- `native/`: host C++20, CMake, projeto MSVC, comunicação serial, diálogos nativos e scripts de instalação.
+- `extensions/chromium/`: extensão Manifest V3 para navegadores Chromium-based.
+- `extensions/firefox/`: extensão Manifest V3 para Firefox, com identificador próprio.
+- `protocol/`: contrato público, ações e exemplos da comunicação `local-device-bridge-v1`.
+- `docs/architecture.md` e `docs/hardware-validation.md`: arquitetura e roteiro de homologação.
+- `docs/README.en.md`: guia equivalente em inglês.
 
 As duas extensões podem ser carregadas diretamente a partir de suas pastas. Há código comum espelhado; os manifestos de Chromium e Firefox **não devem ser trocados**.
 
@@ -21,7 +21,7 @@ As duas extensões podem ser carregadas diretamente a partir de suas pastas. Há
 - **Windows 10/11**: MSVC v143 (Visual Studio ou Build Tools) e Windows SDK.
 - **Linux**: GCC ou Clang, interface serial POSIX e, para confirmação gráfica, GTK3. Sem interface GTK3 compilada ou sessão gráfica, a autorização local é recusada.
 - **macOS**: Apple Clang/Xcode, Objective-C++ e AppKit; é preciso driver adequado para periféricos USB-serial.
-- Conexão na configuração inicial do CMake: \`FetchContent\` obtém \`nlohmann_json\` 3.11.3 com verificação SHA-256.
+- Conexão na configuração inicial do CMake: `FetchContent` obtém `nlohmann_json` 3.11.3 com verificação SHA-256.
 
 ### Instruções de compilação (não executadas nesta migração)
 
@@ -46,24 +46,24 @@ cmake -S native -B build/bridge-macos -DCMAKE_BUILD_TYPE=Release
 cmake --build build/bridge-macos
 ~~~
 
-O CMake é a **configuração oficial de compilação**; o arquivo \`native/Lagosystem.Bridge.vcxproj\` foi preservado para integração com IDE, mas não substitui as dependências resolvidas pelo CMake. No Linux, \`-static-libstdc++\` não torna o binário universal: ainda pode depender de glibc, GTK e bibliotecas do sistema.
+O CMake é a **configuração oficial de compilação**; o arquivo `native/Lagosystem.Bridge.vcxproj` foi preservado para integração com IDE, mas não substitui as dependências resolvidas pelo CMake. No Linux, `-static-libstdc++` não torna o binário universal: ainda pode depender de glibc, GTK e bibliotecas do sistema.
 
-Para habilitar apenas fixtures sintéticas, acrescente \`-DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON\` ao CMake; execute \`ctest --test-dir <diretório-build> --output-on-failure\` somente quando quiser realizar esse teste. Não equivale a testar equipamentos reais.
+Para habilitar apenas fixtures sintéticas, acrescente `-DLAGOSYSTEM_BRIDGE_BUILD_TESTS=ON` ao CMake; execute `ctest --test-dir <diretório-build> --output-on-failure` somente quando quiser realizar esse teste. Não equivale a testar equipamentos reais.
 
 ## Instalação e registro por usuário
 
-1. Em Chromium, carregue \`extensions/chromium/\` como extensão descompactada; no Firefox, use o modo de depuração com \`extensions/firefox/\`. Para publicar nas lojas, siga as respectivas políticas de assinatura.
-2. Obtenha o **ID real** da extensão Chromium (32 letras de a a p). No Firefox, o manifesto usa \`bridge@lagosystem.com.br\`.
-3. Compile o host e instale sua cópia em um local acessível ao usuário. Execute \`native/install-windows.ps1\` em PowerShell **não elevado**, ou \`native/install-unix.sh\` no Linux/macOS **sem sudo/root**, informando o caminho absoluto do executável e o ID Chromium quando aplicável.
-4. Os scripts registram o host \`com.lagosystem.bridge\` no navegador por usuário. Não compilam o executável, não instalam drivers e não autorizam dispositivos automaticamente.
+1. Em Chromium, carregue `extensions/chromium/` como extensão descompactada; no Firefox, use o modo de depuração com `extensions/firefox/`. Para publicar nas lojas, siga as respectivas políticas de assinatura.
+2. Obtenha o **ID real** da extensão Chromium (32 letras de a a p). No Firefox, o manifesto usa `bridge@lagosystem.com.br`.
+3. Compile o host e instale sua cópia em um local acessível ao usuário. Execute `native/install-windows.ps1` em PowerShell **não elevado**, ou `native/install-unix.sh` no Linux/macOS **sem sudo/root**, informando o caminho absoluto do executável e o ID Chromium quando aplicável.
+4. Os scripts registram o host `com.lagosystem.bridge` no navegador por usuário. Não compilam o executável, não instalam drivers e não autorizam dispositivos automaticamente.
 5. Abra o seu sistema por HTTPS, clique no **popup da extensão** e autorize explicitamente o domínio. HTTP é permitido somente para localhost/127.0.0.1 de desenvolvimento.
-6. Seu frontend pode consultar \`ping\` e \`capabilities\`. Para parear um periférico é necessária outra confirmação, exibida nativamente no Windows (TaskDialog), Linux (GTK3) ou macOS (NSAlert).
+6. Seu frontend pode consultar `ping` e `capabilities`. Para parear um periférico é necessária outra confirmação, exibida nativamente no Windows (TaskDialog), Linux (GTK3) ou macOS (NSAlert).
 
 O diretório de Native Messaging varia conforme navegador e sistema operacional. Não presuma que Edge, Brave, Opera GX, Chrome, Firefox e demais derivados utilizem os mesmos caminhos. No macOS também podem existir exigências de assinatura e notarização.
 
 ## Consumindo em uma aplicação que não seja Lagosystem
 
-O protocolo utiliza \`window.postMessage\` entre o site e o content script da extensão. O background confirma a origem real, aplica a lista de ações permitidas e acessa o host Native Messaging. Uma aplicação Web **não** recebe acesso direto às APIs privilegiadas do navegador.
+O protocolo utiliza `window.postMessage` entre o site e o content script da extensão. O background confirma a origem real, aplica a lista de ações permitidas e acessa o host Native Messaging. Uma aplicação Web **não** recebe acesso direto às APIs privilegiadas do navegador.
 
 ~~~js
 const channel = "local-device-bridge-v1";
@@ -94,11 +94,11 @@ const host = await localBridge("ping");         // host instalado e origem autor
 const devices = await localBridge("devices.list");
 ~~~
 
-Se \`detect\` expirar, a extensão pode estar ausente ou desabilitada. Se \`ping\` retornar \`origin_not_approved\`, o próprio usuário deverá autorizar o domínio **no popup da extensão**, nunca por um comando da página. Se o host estiver indisponível, confirme seu executável e o manifesto registrado para aquele navegador.
+Se `detect` expirar, a extensão pode estar ausente ou desabilitada. Se `ping` retornar `origin_not_approved`, o próprio usuário deverá autorizar o domínio **no popup da extensão**, nunca por um comando da página. Se o host estiver indisponível, confirme seu executável e o manifesto registrado para aquele navegador.
 
-Exemplo de pareamento de balança serial descoberta: \`devices.pair\` com \`{deviceId:"COM3",kind:"scale",profile:"ascii-stream",baudRate:9600}\`. O usuário deverá autorizar na janela nativa do SO. \`devices.probe\` retorna amostra serial passiva e, quando possível, \`candidateWeight\`/\`unit\`; a estabilidade e calibração **não** são verificadas. Para impressoras seriais genéricas, utilize \`thermal/escpos\` ou \`dotmatrix/escp\`; \`devices.testPrint\` pede confirmação adicional, e apenas indica envio dos bytes de teste.
+Exemplo de pareamento de balança serial descoberta: `devices.pair` com `{deviceId:"COM3",kind:"scale",profile:"ascii-stream",baudRate:9600}`. O usuário deverá autorizar na janela nativa do SO. `devices.probe` retorna amostra serial passiva e, quando possível, `candidateWeight`/`unit`; a estabilidade e calibração **não** são verificadas. Para impressoras seriais genéricas, utilize `thermal/escpos` ou `dotmatrix/escp`; `devices.testPrint` pede confirmação adicional, e apenas indica envio dos bytes de teste.
 
-Também existem \`devices.paired\`, \`devices.unpair\`, \`capabilities\` e \`exports.save\` (gera novos XML/PDF apenas na pasta \`Lagosystem/Exports\` do usuário, sem acesso a caminhos arbitrários). Consulte o [contrato do protocolo](../protocol/README.md).
+Também existem `devices.paired`, `devices.unpair`, `capabilities` e `exports.save` (gera novos XML/PDF apenas na pasta `Lagosystem/Exports` do usuário, sem acesso a caminhos arbitrários). Consulte o [contrato do protocolo](../protocol/README.md).
 
 ## Segurança e participação
 

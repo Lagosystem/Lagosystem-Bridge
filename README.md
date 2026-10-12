@@ -17,11 +17,11 @@ This project may carry the Lagosystem name but **does not require any Lagosystem
 | [protocol/](protocol/) | Protocol contract and machine-readable schema |
 | [docs/](docs/) | Bilingual integration guides, architecture and device-validation plan |
 
-The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdout), not a local web server. An approved website communicates through \`window.postMessage\` to its extension's content script. Each site and serial device needs the applicable authorization. The C++ process intentionally rejects administrator/root execution.
+The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdout), not a local web server. An approved website communicates through `window.postMessage` to its extension's content script. Each site and serial device needs the applicable authorization. The C++ process intentionally rejects administrator/root execution.
 
 ### Available (experimental) interfaces
 
-\`detect\` (extension-level), \`ping\`, \`capabilities\`, \`devices.list\`, \`devices.paired\`, \`devices.pair\`, \`devices.unpair\`, \`devices.probe\`, \`devices.testPrint\`, and constrained \`exports.save\`.
+`detect` (extension-level), `ping`, `capabilities`, `devices.list`, `devices.paired`, `devices.pair`, `devices.unpair`, `devices.probe`, `devices.testPrint`, and constrained `exports.save`.
 
 **Not yet validated:** real hardware compatibility, manufacturer-specific protocols, USB HID, OS printer spoolers, signed releases and end-to-end builds on each OS. A candidate scale weight is *not* a certified measurement; sending printer bytes does *not* prove printing.
 
@@ -37,6 +37,6 @@ All software is distributed under **GNU GPL-3.0-or-later** (see [LICENSE](LICENS
 
 ### Git history migration
 
-This repository contains a reconstructed **path-filtered 82-commit history** extracted from the Bridge files in the former private Lagosystem monorepo. Original commit messages are preserved, and each rebuilt commit has \`Migrated-from\` and \`Original-author\` trailers for traceability. Commit SHAs/dates are not identical because the paths and parent history changed; **no private ERP source or its unrelated commit graph was published**.
+This repository contains a reconstructed **path-filtered 82-commit history** extracted from the Bridge files in the former private Lagosystem monorepo. Original commit messages are preserved, and each rebuilt commit has `Migrated-from` and `Original-author` trailers for traceability. Commit SHAs/dates are not identical because the paths and parent history changed; **no private ERP source or its unrelated commit graph was published**.
 
 No CI, build, automated or physical hardware tests were executed as part of the extraction.
