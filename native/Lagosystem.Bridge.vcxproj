@@ -10,19 +10,71 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>
+        Comctl32.lib;Advapi32.lib;%(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>01A12D7B-D1F3-79F9-A8CD-7D702F3456DA</ProjectGuid>
-    <RootNamespace>MeuProjeto</RootNamespace>
+    <RootNamespace>lagosystem</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
+  
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>01A12D7B-D1F3-79F9-A8CD-7D702F3456DA</ProjectGuid>
+
+    <ProjectName>Lagosystem.Bridge</ProjectName>
+    <RootNamespace>lagosystem</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="ProjectMetadata">
+    <Authors>Leonardo Nicolas; Contributors</Authors>
+    <Company>Lagosystem</Company>
+    <Description>Open-source cross-platform native device bridge</Description>
+    <Version>0.2.0</Version>
+    <License>GPL-3.0-or-later</License>
+    <RepositoryUrl>https://github.com/leonardo-nicolas/Lagosystem-</RepositoryUrl>
+  </PropertyGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ResourceCompile Include="resources\windows.rc">
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)resources;%(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemGroup>
     <ClInclude Include=".\src\device_control.h" />
@@ -41,7 +93,7 @@
     <None Include="CMakeLists.txt" />
     <None Include="install-unix.sh" />
     <None Include="install-windows.ps1" />
-    <None Include="LICENSE.md" />
+    <None Include="LICENSE" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

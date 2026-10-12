@@ -1,2 +1,32 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
-1 24 "windows-app.manifest"
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,2,0,0
+ PRODUCTVERSION 0,2,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041604B0"
+        BEGIN
+            VALUE "CompanyName", "Lagosystem\0"
+            VALUE "FileDescription", "Local Device Bridge\0"
+            VALUE "FileVersion", "0.2.0.0\0"
+            VALUE "InternalName", "lagosystem-bridge\0"
+            VALUE "OriginalFilename", "lagosystem-bridge.exe\0"
+            VALUE "ProductName", "Lagosystem Bridge\0"
+            VALUE "ProductVersion", "0.2.0\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Leonardo Nicolas and contributors\0"
+            VALUE "Comments", "Open-source native device bridge licensed under GPLv3 or later.\0"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0416, 1200
+    END
+END
