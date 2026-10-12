@@ -25,6 +25,12 @@ The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdo
 
 **Not yet validated:** real hardware compatibility, manufacturer-specific protocols, USB HID, OS printer spoolers, signed releases and end-to-end builds on each OS. A candidate scale weight is *not* a certified measurement; sending printer bytes does *not* prove printing.
 
+## Community / Comunidade
+
+- [Open a structured Issue / Abrir Issue com formulário](https://github.com/leonardo-nicolas/Lagosystem-Bridge/issues/new/choose) — bug, feature, hardware compatibility, protocol or driver.
+- [Discussions / Discussões](https://github.com/leonardo-nicolas/Lagosystem-Bridge/discussions) — questions, ideas and integration support; general questions should not become bug reports.
+- [Security policy / Política de segurança](SECURITY.md) — report vulnerabilities privately, never as a public Issue.
+
 ## Quick links
 
 - [English: prerequisites, CMake commands, extension installation, JS example](docs/README.en.md)
