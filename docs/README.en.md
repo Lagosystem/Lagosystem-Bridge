@@ -107,3 +107,6 @@ No root/administrator host execution. No shell, network listener, arbitrary devi
 **Do not use generic ASCII weight parsing for legal-for-trade measurements**, fiscal certification or unattended industrial controls. Only transport/parsing diagnostics are available today. Review [hardware validation](hardware-validation.md), [security policy](../SECURITY.md) and [contribution guide](../CONTRIBUTING.md).
 
 License: GNU GPL-3.0-or-later; see [LICENSE](../LICENSE).
+### Export to another folder or mounted drive
+
+Use `exports.save` with `{filename:"report.pdf",base64:pdfBase64,selectDirectory:true}`. A native OS picker asks the local user to choose one folder **on each call**; the webpage cannot supply a path. Existing files are never read or overwritten. The host requires directory read and new-file read/write access, rejects known OS/application-private directories, and returns `location:"selected_directory"` rather than a local path. USB disks, network shares and mounted cloud drives work when the OS/provider grants the necessary access. Without an interactive desktop (or GTK3 on Linux) selection is denied. The default `Lagosystem/Exports` destination remains unchanged.

@@ -10,7 +10,7 @@ A marca de distribuição é Lagosystem; **a API e o host não consultam nenhum 
 - `devices.paired` / `devices.unpair`: consultar/revogar autorizações.
 - `devices.probe`: abrir porta serial de balança e ler até 256 bytes passivamente; converter um possível peso ASCII com unidade, **sem certificar calibração, estabilidade ou validade fiscal**.
 - `devices.testPrint`: pedir nova confirmação nativa e enviar texto de teste curto com inicialização ESC @ para impressoras serial térmicas ou matriciais compatíveis. Não envia comandos de corte, gaveta, NF-e ou ajuste de impressora do SO.
-- `exports.save`: XML/PDF no perfil do usuário, sem acesso arbitrário a outras pastas ou execução de shell.
+- `exports.save`: XML/PDF novo em `Lagosystem/Exports` por padrão; com `selectDirectory:true`, o usuário escolhe uma pasta ou unidade no seletor do SO, inclusive mídia removível e nuvem montada. Verificação de leitura/escrita e bloqueio de diretórios sensíveis conhecidos, sem aceitar caminhos fornecidos pelo site ou executar shell.
 
 **Software host e extensões:** GPL-3.0, licença nos respectivos subdiretórios. ERP e SaaS não são publicados nem relicenciados por esta inclusão.
 

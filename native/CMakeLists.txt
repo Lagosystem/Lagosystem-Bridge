@@ -25,6 +25,7 @@ endif()
 # 3. FONTES COMUNS
 set(SOURCES 
     src/main.cpp 
+    src/export_storage.cpp
     src/serial_port.cpp 
     src/device_control.cpp 
     src/scale_protocol.cpp
@@ -70,7 +71,7 @@ elseif(WIN32)
   target_sources(lagosystem-bridge PRIVATE src/native_consent.cpp resources/windows.rc)
   target_include_directories(lagosystem-bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
   target_compile_definitions(lagosystem-bridge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
-  target_link_libraries(lagosystem-bridge PRIVATE Comctl32 Advapi32)
+  target_link_libraries(lagosystem-bridge PRIVATE Comctl32 Advapi32 Ole32 Shell32)
   # TaskDialogIndirect is exported by Common Controls v6, not the legacy v5.
   # Merge the checked-in asInvoker + Common-Controls v6 manifest into the PE.
   # Keeping windows.rc for VERSIONINFO alone does NOT embed this manifest.

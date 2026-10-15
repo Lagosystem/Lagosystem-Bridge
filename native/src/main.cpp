@@ -6,12 +6,15 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "device_control.h"
+#include "native_consent.h"
+#include "export_storage.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -151,40 +154,30 @@ json WriteExport(const json& request)
     if (ext == ".xml" && (bytes.empty() || (bytes[0] != '<' && bytes[0] != 0xEF)))
         throw std::runtime_error("invalid_xml_header");
 
-    const fs::path home = Home();
-    const fs::path application = home / "Lagosystem";
-    const fs::path exports = application / "Exports";
-    // No path supplied by the browser is ever accepted; prevent following a pre-existing symlink.
-    if (fs::is_symlink(application) || fs::is_symlink(exports))
-        throw std::runtime_error("export_symlink_denied");
-    fs::create_directories(exports);
-    if (fs::weakly_canonical(exports).parent_path() != fs::weakly_canonical(application))
-        throw std::runtime_error("unsafe_export_path");
-    const fs::path destination = exports / filename;
-#ifdef _WIN32
-    HANDLE file = CreateFileW(destination.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW,
-                              FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (file == INVALID_HANDLE_VALUE) throw std::runtime_error("export_exists_or_denied");
-    DWORD written{};
-    bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr) != 0
-                   && written == bytes.size();
-    CloseHandle(file);
-    if (!success) { fs::remove(destination); throw std::runtime_error("export_write_failed"); }
-#else
-    const int fd = open(destination.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, S_IRUSR | S_IWUSR);
-    if (fd < 0) throw std::runtime_error("export_exists_or_denied");
-    std::size_t done = 0;
-    while (done < bytes.size())
-    {
-        const ssize_t count = write(fd, bytes.data() + done, bytes.size() - done);
-        if (count <= 0) break;
-        done += static_cast<std::size_t>(count);
+    if (request.contains("path") || request.contains("directory") || request.contains("destination"))
+        throw std::runtime_error("invalid_export_request");
+    if (request.contains("selectDirectory") && !request["selectDirectory"].is_boolean())
+        throw std::runtime_error("invalid_export_request");
+    const bool selectDirectory = request.value("selectDirectory", false);
+    fs::path exports;
+    if (selectDirectory) {
+        // The browser cannot choose a filesystem path: only the local user can.
+        const std::optional<fs::path> selected = lagosystem::ui::PickExportDirectory();
+        if (!selected) throw std::runtime_error("user_denied");
+        exports = *selected;
+    } else {
+        const fs::path application = Home() / "Lagosystem";
+        exports = application / "Exports";
+        if (fs::is_symlink(application) || fs::is_symlink(exports))
+            throw std::runtime_error("export_symlink_denied");
+        fs::create_directories(exports);
+        if (fs::weakly_canonical(exports).parent_path() != fs::weakly_canonical(application))
+            throw std::runtime_error("unsafe_export_path");
     }
-    close(fd);
-    if (done != bytes.size()) { fs::remove(destination); throw std::runtime_error("export_write_failed"); }
-#endif
-    // Return filename only, not the user's full home path.
-    return {{"ok", true}, {"filename", filename}, {"location", "Lagosystem/Exports"}};
+    lagosystem::storage::WriteNewExport(exports, filename, bytes);
+    // Do not reveal absolute local paths to web content.
+    return {{"ok", true}, {"filename", filename},
+            {"location", selectDirectory ? "selected_directory" : "Lagosystem/Exports"}};
 }
 
 json Dispatch(const json& input)
@@ -251,7 +244,8 @@ int main()
                     || code == "unsupported_export_type" || code == "invalid_pdf_header"
                     || code == "invalid_xml_header" || code == "export_symlink_denied"
                     || code == "unsafe_export_path" || code == "export_exists_or_denied"
-                    || code == "export_write_failed" || code == "missing_home"
+                    || code == "export_write_failed" || code == "export_directory_denied"
+                    || code == "missing_home"
                     || code == "invalid_home";
                 SendMessage({{"ok", false}, {"error", known ? std::string(code) : "operation_failed"}});
             }

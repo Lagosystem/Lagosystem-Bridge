@@ -20,4 +20,24 @@ bool ConfirmDeviceAction(const std::string& title, const std::string& message) {
         return response == NSAlertFirstButtonReturn;
     }
 }
+std::optional<std::filesystem::path> PickExportDirectory() {
+    @autoreleasepool {
+        [NSApplication sharedApplication];
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+        [NSApp activateIgnoringOtherApps:YES];
+        NSOpenPanel* panel = [NSOpenPanel openPanel];
+        [panel setCanChooseDirectories:YES];
+        [panel setCanChooseFiles:NO];
+        [panel setAllowsMultipleSelection:NO];
+        [panel setCanCreateDirectories:NO];
+        [panel setResolvesAliases:YES];
+        [panel setPrompt:@"Use This Folder"];
+        if ([panel runModal] != NSModalResponseOK) return std::nullopt;
+        NSURL* url = [panel URL];
+        if (!url || ![url isFileURL]) return std::nullopt;
+        NSString* path = [url path];
+        if (!path || ![path UTF8String]) return std::nullopt;
+        return std::filesystem::path([path UTF8String]);
+    }
+}
 }

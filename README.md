@@ -21,7 +21,7 @@ The host uses browser **Native Messaging** (length-prefixed JSON over stdin/stdo
 
 ### Available (experimental) interfaces
 
-`detect` (extension-level), `ping`, `capabilities`, `devices.list`, `devices.paired`, `devices.pair`, `devices.unpair`, `devices.probe`, `devices.testPrint`, and constrained `exports.save`.
+`detect` (extension-level), `ping`, `capabilities`, `devices.list`, `devices.paired`, `devices.pair`, `devices.unpair`, `devices.probe`, `devices.testPrint`, and constrained `exports.save` (optional OS-native folder selection for each export).
 
 **Not yet validated:** real hardware compatibility, manufacturer-specific protocols, USB HID, OS printer spoolers, signed releases and end-to-end builds on each OS. A candidate scale weight is *not* a certified measurement; sending printer bytes does *not* prove printing.
 

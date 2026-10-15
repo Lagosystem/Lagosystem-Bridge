@@ -98,7 +98,7 @@ Se `detect` expirar, a extensão pode estar ausente ou desabilitada. Se `ping` r
 
 Exemplo de pareamento de balança serial descoberta: `devices.pair` com `{deviceId:"COM3",kind:"scale",profile:"ascii-stream",baudRate:9600}`. O usuário deverá autorizar na janela nativa do SO. `devices.probe` retorna amostra serial passiva e, quando possível, `candidateWeight`/`unit`; a estabilidade e calibração **não** são verificadas. Para impressoras seriais genéricas, utilize `thermal/escpos` ou `dotmatrix/escp`; `devices.testPrint` pede confirmação adicional, e apenas indica envio dos bytes de teste.
 
-Também existem `devices.paired`, `devices.unpair`, `capabilities` e `exports.save` (gera novos XML/PDF apenas na pasta `Lagosystem/Exports` do usuário, sem acesso a caminhos arbitrários). Consulte o [contrato do protocolo](../protocol/README.md).
+Também existem `devices.paired`, `devices.unpair`, `capabilities` e `exports.save` (gera novos XML/PDF na pasta `Lagosystem/Exports` do usuário por padrão; com `selectDirectory:true`, abre o seletor nativo para escolher uma pasta em qualquer unidade acessível, sem aceitar caminho fornecido pelo site). Consulte o [contrato do protocolo](../protocol/README.md).
 
 ## Segurança e participação
 
@@ -107,3 +107,14 @@ Não execute o host como administrador/root. Não retire as autorizações por o
 **A leitura ASCII genérica de balança não é metrologia legal e não deve ser usada isoladamente em operações comerciais, fiscais ou industriais.** Novas marcas/modelos precisam de documentação de protocolo e testes físicos documentados. Veja [homologação](hardware-validation.md), [segurança](../SECURITY.md) e [contribuições](../CONTRIBUTING.md).
 
 Licença: GNU GPL-3.0-or-later, texto em [LICENSE](../LICENSE).
+### Exportar em outra pasta, pendrive, HD externo ou nuvem montada
+
+```js
+const result = await localBridge("exports.save", {
+  filename: "nota.pdf",
+  base64: pdfBase64,
+  selectDirectory: true
+});
+```
+
+O usuário seleciona **pessoalmente** a pasta a cada exportação na janela do Windows/Linux/macOS; a página não informa o caminho. O host exige leitura do diretório, permissão de criação e acesso de leitura/escrita ao novo arquivo; recusa pastas reconhecidamente privadas do sistema/aplicações, links inseguros e arquivos existentes. O resultado retorna somente `filename` e `location:"selected_directory"`, nunca o caminho absoluto. Sem desktop/GTK3 (Linux), a seleção falha de modo seguro. A operação não concede acesso para listar, ler, apagar ou sobrescrever outros arquivos. Montagens de Google Drive/OneDrive/NAS são tratadas como pastas comuns quando o sistema operacional realmente permite as operações; permissões do provedor podem acrescentar restrições.

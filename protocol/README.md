@@ -17,7 +17,7 @@
 | `devices.unpair` | `deviceId` | OS-native confirmation and revocation. |
 | `devices.probe` | `deviceId` | Passive ASCII read for a previously paired serial scale; weight is a candidate, not certified. |
 | `devices.testPrint` | `deviceId` | Additional confirmation then sends a short generic serial ESC/POS or ESC/P test. |
-| `exports.save` | `filename,base64` | Writes a new PDF/XML file only under the current user's `Lagosystem/Exports` folder. |
+| `exports.save` | `filename,base64,selectDirectory?` | By default writes a new PDF/XML under the current user's `Lagosystem/Exports`. When `selectDirectory:true`, the OS folder picker lets the user select any permitted local, removable, network or cloud-mounted directory for **that export only**. No web-supplied path, overwrite, existing-file read or persistent folder grant. |
 
 Supported pair combinations: `scale / ascii-stream`, `thermal / escpos`, `dotmatrix / escp`. Accepted baud rates: 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200. Actual device communication currently assumes serial transport. Unsupported operations must fail closed.
 
@@ -26,3 +26,15 @@ For an integration example and error states, consult [English developer guide](.
 ### Versioning
 
 The browser-facing `local-device-bridge-v1` channel is distinct from the software version (currently 0.2.0 in source manifests). Clients must not infer that future product versions imply an unchanged protocol.
+### Exportar para outra unidade ou pasta
+
+```js
+const response = await localBridge("exports.save", {
+  filename: "relatorio.pdf",
+  base64: pdfBase64,
+  selectDirectory: true
+});
+// Success: {ok:true,filename:"relatorio.pdf",location:"selected_directory"}
+```
+
+O seletor é uma janela nativa local. Cada chamada exige nova seleção; se o usuário cancelar ou não houver interface gráfica, falha sem salvar. O host verifica leitura do diretório e criação de arquivo novo com acesso de leitura/escrita usando as permissões do processo, recusa diretórios conhecidos do sistema e de configuração privada, e não expõe o caminho absoluto ao site. Só cria XML/PDF novos (até 750 KiB); não lê, lista, apaga ou sobrescreve arquivos existentes. Sem elevação de privilégios. Arquivos em nuvem dependem da unidade montada, da conectividade e das permissões efetivas do provedor; ACLs sozinhas não definem se todo diretório é sensível.

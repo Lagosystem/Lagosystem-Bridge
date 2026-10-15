@@ -71,6 +71,10 @@
     },
     "base64": {
       "type": "string"
+    },
+    "selectDirectory": {
+      "type": "boolean",
+      "description": "If true, ask the local user to choose one writable directory through the OS picker; never accept a path from the webpage."
     }
   },
   "additionalProperties": false

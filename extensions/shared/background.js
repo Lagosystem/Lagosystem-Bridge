@@ -46,6 +46,9 @@ runtime.onMessage.addListener((message, sender, reply) => {
         return { ok: false, error: "invalid_export" };
       request.filename = message.filename;
       request.base64 = message.base64;
+      if (message.selectDirectory !== undefined && typeof message.selectDirectory !== "boolean")
+        return { ok: false, error: "invalid_export" };
+      request.selectDirectory = message.selectDirectory === true;
     }
     const saved = await storage.local.get("perOriginDevices");
     const grants = saved.perOriginDevices && typeof saved.perOriginDevices === "object"
