@@ -58,3 +58,7 @@ All software is distributed under **GNU GPL-3.0-or-later** (see [LICENSE](LICENS
 This repository contains a reconstructed **path-filtered 82-commit history** extracted from the Bridge files in the former private Lagosystem monorepo. Original commit messages are preserved, and each rebuilt commit has `Migrated-from` and `Original-author` trailers for traceability. Commit SHAs/dates are not identical because the paths and parent history changed; **no private ERP source or its unrelated commit graph was published**.
 
 No CI, build, automated or physical hardware tests were executed as part of the extraction.
+
+### Instaladores por usuário / Per-user installers
+
+See [Instaladores Linux, macOS e Windows / Cross-platform installers](docs/installers.md). The bootstrapper asks for your HTTPS website address and Chromium extension IDs; the native host is launched by the browser *on demand*. Do not configure the Native Messaging stdio executable as a login autostart daemon. Device and site authorization remains explicit.

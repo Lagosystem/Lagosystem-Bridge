@@ -110,3 +110,10 @@ License: GNU GPL-3.0-or-later; see [LICENSE](../LICENSE).
 ### Export to another folder or mounted drive
 
 Use `exports.save` with `{filename:"report.pdf",base64:pdfBase64,selectDirectory:true}`. A native OS picker asks the local user to choose one folder **on each call**; the webpage cannot supply a path. Existing files are never read or overwritten. The host requires directory read and new-file read/write access, rejects known OS/application-private directories, and returns `location:"selected_directory"` rather than a local path. USB disks, network shares and mounted cloud drives work when the OS/provider grants the necessary access. Without an interactive desktop (or GTK3 on Linux) selection is denied. The default `Lagosystem/Exports` destination remains unchanged.
+
+
+## New per-user release installers
+
+On Linux/macOS use `bash installers/install.sh --url https://your-system.example:8443/app --chromium-ids ACTUAL_EXTENSION_ID` (optional ID list). On Windows compile `installers/Lagosystem-Bridge.iss` with Inno Setup 6; it invokes the non-elevated PowerShell bootstrapper. Each platform fetches the latest published GitHub Release, including prereleases, and checks the downloaded archive's SHA-256 sidecar before unpacking.
+
+The installer URL is a local suggestion shown inside the extension popup, **not an automatic origin grant**. Browser-store extension installation/signing and per-site/device approval are separate. Native Messaging launches the stdio host on demand rather than at OS login. See [installer guide](installers.md).

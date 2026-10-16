@@ -87,7 +87,7 @@ target="$data/bin/lagosystem-bridge"
 tar -xOzf "$temporary/$asset" "$bundle/bin/lagosystem-bridge" > "$temporary/lagosystem-bridge"
 chmod 700 "$temporary/lagosystem-bridge"
 mv -f "$temporary/lagosystem-bridge" "$target"
-if tar -tzf "$temporary/$asset" | grep -Fxq "$bundle/assets/lagosystem-bridge.png"; then
+if tar -tzf "$temporary/$asset" | grep -Fx "$bundle/assets/lagosystem-bridge.png" > /dev/null; then
   tar -xOzf "$temporary/$asset" "$bundle/assets/lagosystem-bridge.png" > "$data/icon.png"
   chmod 644 "$data/icon.png"
 fi

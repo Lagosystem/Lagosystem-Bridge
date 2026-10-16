@@ -56,6 +56,9 @@ if(kind==='native') {
     ?join(build,'Release',executable):join(build,executable);
   copy(binary,join(root,'bin',executable));
   copy('assets/f5987213-e8f8-4cd7-a10f-17bbebac061b.png',join(root,'assets','lagosystem-bridge.png'));
+  copy('assets/lagosystem_native_ico.ico',join(root,'assets','lagosystem_native_ico.ico'));
+  for(const installer of ['install.sh','uninstall.sh','install-macos.sh','uninstall-macos.sh','install-windows.ps1','Lagosystem-Bridge.iss'])
+    copy(join('installers',installer),join(root,'installers',installer));
   if(os!=='windows') chmodSync(join(root,'bin',executable),0o755);
   copy('native/LICENSE',join(root,'LICENSE'));
   copy('native/README.md',join(root,'README.md'));
