@@ -57,6 +57,12 @@ if(kind==='native') {
   const binary=os==='windows'
     ?join(build,'Release',executable):join(build,executable);
   copy(binary,join(root,'bin',executable));
+  const managerExecutable = os === 'windows' ? 'lagosystem-bridge-manager.exe' : 'lagosystem-bridge-manager';
+  const managerBinary = os === 'windows'
+    ? join(build,'Release',managerExecutable) : join(build,managerExecutable);
+  // Refuse incomplete new releases so users never install an unmanaged host.
+  copy(managerBinary, join(root,'bin',managerExecutable));
+  if(os!=='windows') chmodSync(join(root,'bin',managerExecutable),0o755);
   copy('assets/f5987213-e8f8-4cd7-a10f-17bbebac061b.png',join(root,'assets','lagosystem-bridge.png'));
   copy('assets/lagosystem_native_ico.ico',join(root,'assets','lagosystem_native_ico.ico'));
   for(const installer of ['install.sh','uninstall.sh','install-macos.sh','uninstall-macos.sh','install-windows.ps1','Lagosystem-Bridge.iss'])

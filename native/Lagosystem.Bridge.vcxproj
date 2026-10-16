@@ -28,7 +28,7 @@
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>
-        Comctl32.lib;Advapi32.lib;Ole32.lib;Shell32.lib;%(AdditionalDependencies)
+        Comctl32.lib;Advapi32.lib;Ole32.lib;Shell32.lib;sqlite3.lib;%(AdditionalDependencies)
       </AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -78,6 +78,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemGroup>
     <ClInclude Include=".\src\device_control.h" />
+    <ClInclude Include=".\src\policy_store.h" />
     <ClInclude Include=".\src\export_storage.h" />
     <ClInclude Include=".\src\native_consent.h" />
     <ClInclude Include=".\src\scale_protocol.h" />
@@ -85,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\src\device_control.cpp" />
+    <ClCompile Include=".\src\policy_store.cpp" />
     <ClCompile Include=".\src\export_storage.cpp" />
     <ClCompile Include=".\src\native_consent.cpp" />
     <ClCompile Include=".\src\scale_protocol.cpp" />

@@ -22,7 +22,7 @@ $registryPaths = @{
     brave = 'HKCU:\Software\BraveSoftware\Brave-Browser\NativeMessagingHosts'
     firefox = 'HKCU:\Software\Mozilla\NativeMessagingHosts'
 }
-$startMenu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Lagosystem Bridge.url'
+$startMenu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Lagosystem Bridge Manager.lnk'
 
 if ($Uninstall) {
     foreach ($browser in $registryPaths.Keys) {
@@ -105,10 +105,16 @@ try {
     Expand-Archive -LiteralPath $archive -DestinationPath $extracted
     $source = Join-Path $extracted "lagosystem-bridge-$tag-windows-$arch\bin\lagosystem-bridge.exe"
     if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw 'Host missing from verified archive.' }
+    $managerSource = Join-Path $extracted "lagosystem-bridge-$tag-windows-$arch\bin\lagosystem-bridge-manager.exe"
+    if (-not (Test-Path -LiteralPath $managerSource -PathType Leaf)) {
+        throw 'Release lacks Bridge Manager. No installation performed.'
+    }
     $bin = Join-Path $root 'bin'
     [IO.Directory]::CreateDirectory($bin) | Out-Null
     $target = Join-Path $bin 'lagosystem-bridge.exe'
     Copy-Item -LiteralPath $source -Destination $target -Force
+    $managerTarget = Join-Path $bin 'lagosystem-bridge-manager.exe'
+    Copy-Item -LiteralPath $managerSource -Destination $managerTarget -Force
     [IO.Directory]::CreateDirectory($manifestDirectory) | Out-Null
     $utf8 = [Text.UTF8Encoding]::new($false)
     [IO.File]::WriteAllText((Join-Path $root 'site-url.txt'), $uri.AbsoluteUri, $utf8)
@@ -137,9 +143,13 @@ try {
     foreach ($browser in @('chrome', 'edge', 'brave')) {
         Add-Registration -Browser $browser -AllowedOrigins $origins
     }
-    # .url is a per-user Start Menu shortcut, not an elevated startup task.
-    [IO.File]::WriteAllText($startMenu,
-        "[InternetShortcut]" + [Environment]::NewLine + "URL=" + $uri.AbsoluteUri + [Environment]::NewLine, $utf8)
+    # Start Menu shortcut for independent local permission administration.
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($startMenu)
+    $shortcut.TargetPath = $managerTarget
+    $shortcut.WorkingDirectory = $bin
+    $shortcut.IconLocation = "$managerTarget,0"
+    $shortcut.Save()
     Write-Host "Installed $tag for the current user. Website: $($uri.AbsoluteUri)"
     Write-Host 'Install browser extensions separately; approve the site in the extension popup.'
     Write-Host 'Native Messaging starts the host ON DEMAND; no autostart service is needed.'
