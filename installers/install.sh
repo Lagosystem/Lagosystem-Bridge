@@ -61,7 +61,7 @@ trap 'rm -rf -- "$temporary"' EXIT
 echo "Downloading $tag ($platform/$arch)..."
 curl --proto '=https' --tlsv1.2 -fL --retry 3 "$base/$asset" -o "$temporary/$asset"
 curl --proto '=https' --tlsv1.2 -fL --retry 3 "$base/$asset.sha256" -o "$temporary/$asset.sha256"
-expected="$(awk -v filename="$asset" '$2 == filename && $1 ~ /^[[:xdigit:]]{64}$/ { print tolower($1) }' "$temporary/$asset.sha256")"
+expected="$(awk -v filename="$asset" '$2 == filename && length($1) == 64 && $1 ~ /^[[:xdigit:]]+$/ { print tolower($1) }' "$temporary/$asset.sha256")"
 if [ -z "$expected" ]; then echo "Missing or malformed SHA-256 release checksum." >&2; exit 4; fi
 if command -v sha256sum >/dev/null; then actual="$(sha256sum "$temporary/$asset" | awk '{print $1}')"
 else actual="$(shasum -a 256 "$temporary/$asset" | awk '{print $1}')"; fi
@@ -118,14 +118,16 @@ launcher="$data/open-site.sh"
 cat > "$launcher" <<'LAUNCH'
 #!/usr/bin/env bash
 set -euo pipefail
-url_file="__CONFIG_FILE__"
-IFS= read -r url < "$url_file"
-if [ "$(uname -s)" = Darwin ]; then open "$url"; else xdg-open "$url"; fi
+if [ "$(uname -s)" = Darwin ]; then
+  file="$HOME/Library/Application Support/Lagosystem Bridge/site-url"
+  IFS= read -r url < "$file"
+  open "$url"
+else
+  file="${XDG_CONFIG_HOME:-$HOME/.config}/lagosystem-bridge/site-url"
+  IFS= read -r url < "$file"
+  xdg-open "$url"
+fi
 LAUNCH
-# Replacement cannot affect shell syntax: path is escaped as a Bash quoted string.
-escaped_config="$(json_string "$config/site-url")"
-sed -i.bak "s|\"__CONFIG_FILE__\"|$escaped_config|" "$launcher"
-rm -f "$launcher.bak"
 chmod 700 "$launcher"
 if [ "$platform" = linux ]; then
   mkdir -p "$applications"
