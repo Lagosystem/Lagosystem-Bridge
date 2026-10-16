@@ -5,7 +5,7 @@ const storage = globalThis.browser?.storage ?? globalThis.chrome.storage;
 const HOST = "com.lagosystem.bridge"; // Distribution identifier, not a cloud endpoint.
 const CHANNEL = "local-device-bridge-v1";
 const ALLOWED = new Set(["ping", "capabilities", "devices.list", "devices.paired",
-  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
+  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save", "exports.folders"]);
 const MAX_MESSAGE = 1024 * 1024;
 
 async function originAllowed(origin) {

@@ -2,7 +2,7 @@
 // Generic webpage adapter. Permission decisions live exclusively in the extension background.
 const CHANNEL = "local-device-bridge-v1";
 const VALID = new Set(["detect", "ping", "capabilities", "devices.list", "devices.paired",
-  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
+  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save", "exports.folders"]);
 const origin = location.origin;
 window.addEventListener("message", (event) => {
   if (event.source !== window || event.origin !== origin) return;

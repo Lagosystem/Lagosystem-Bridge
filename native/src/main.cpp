@@ -261,7 +261,8 @@ json Dispatch(const json& input)
         resource = input["deviceId"].get<std::string>();
     }
     const bool folder = action == "exports.save" && resource == "folder";
-    const bool approved = folder
+    const bool folderList = action == "exports.folders";
+    const bool approved = folderList ? lagosystem::policy::IsAllowed(origin, "ping") : folder
         ? input.contains("folderId") && input["folderId"].is_number_integer() &&
           input["folderId"].get<std::int64_t>() > 0 &&
           lagosystem::policy::AllowedFolder(origin, input["folderId"].get<std::int64_t>()).has_value()
@@ -269,6 +270,12 @@ json Dispatch(const json& input)
     lagosystem::policy::Audit(origin, action, resource, approved);
     if (!approved) throw std::runtime_error("policy_resource_denied");
 
+    if (action == "exports.folders") {
+        json entries = json::array();
+        for (const auto& grant : lagosystem::policy::ListFolders(origin))
+            entries.push_back({{"id", grant.id}, {"label", "Folder " + std::to_string(grant.id)}});
+        return {{"ok", true}, {"folders", entries}};
+    }
     if (action == "ping")
         return {{"ok", true}, {"protocolVersion", 1}, {"host", "LocalDeviceBridge"},
                 {"platform",
@@ -282,7 +289,7 @@ json Dispatch(const json& input)
                 }};
     if (action == "capabilities")
         return {{"ok", true}, {"protocolVersion", 1},
-                {"capabilities", json::array({"exports.save", "devices.list", "devices.paired",
+                {"capabilities", json::array({"exports.save", "exports.folders", "devices.list", "devices.paired",
                     "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"})},
                 {"protocols", json::array({"ascii-stream", "escpos", "escp"})},
                 {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint"})},
