@@ -5,6 +5,7 @@
 #include <wx/wx.h>
 #include <wx/listbox.h>
 #include <wx/choice.h>
+#include <wx/choicdlg.h>
 #include <wx/dirdlg.h>
 #include <wx/textdlg.h>
 #include <wx/listctrl.h>
@@ -183,6 +184,7 @@ private:
                                  "Rename website", Display(site->name));
         if (dialog.ShowModal() == wxID_OK) {
             policy::RenameSite(key, Convert(dialog.GetValue()));
+            policy::Audit(key, "manager.rename", "[site]", true);
             RefreshAll(key);
         }
     }
@@ -199,6 +201,7 @@ private:
         if (*next != old && !Confirm(this, "Change security origin? Existing device and folder grants will be deleted."))
             return;
         policy::ChangeUrl(old, url);
+        policy::Audit(old, "manager.change_url", "[revoked old origin grants]", true);
         RefreshAll(*next);
     }
     void Toggle() {
@@ -209,12 +212,14 @@ private:
         if (enable && !Confirm(this, "Enable this website to request the separately granted operations?"))
             return;
         policy::EnableSite(origin, enable);
+        policy::Audit(origin, "manager.enable", enable ? "on" : "off", true);
         RefreshAll(origin);
     }
     void Remove() {
         const auto* site = Current();
         if (!site || !Confirm(this, "Permanently remove this website and all associated permissions?"))
             return;
+        policy::Audit(site->origin, "manager.delete", "[site and grants]", true);
         policy::DeleteSite(site->origin);
         RefreshAll();
     }

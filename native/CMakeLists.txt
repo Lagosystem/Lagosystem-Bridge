@@ -118,4 +118,15 @@ if(LAGOSYSTEM_BRIDGE_BUILD_TESTS)
   target_include_directories(bridge-scale-protocol-fixtures PRIVATE src)
   target_link_libraries(bridge-scale-protocol-fixtures PRIVATE nlohmann_json::nlohmann_json)
   add_test(NAME bridge-scale-protocol-fixtures COMMAND bridge-scale-protocol-fixtures)
+
+  # Isolated tests for policy isolation and site permissions, no devices or browser.
+  add_executable(bridge-policy-fixtures tests/policy_store_fixtures.cpp
+    src/policy_store.cpp src/export_storage.cpp)
+  target_link_libraries(bridge-policy-fixtures PRIVATE SQLite::SQLite3)
+  target_include_directories(bridge-policy-fixtures PRIVATE src)
+  if(MSVC)
+    set_property(TARGET bridge-policy-fixtures PROPERTY MSVC_RUNTIME_LIBRARY
+      "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
+  add_test(NAME bridge-policy-fixtures COMMAND bridge-policy-fixtures)
 endif()

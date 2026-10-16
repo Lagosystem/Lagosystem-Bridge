@@ -196,6 +196,7 @@ void AddSite(std::string_view name, std::string_view url, bool enabled) {
     const auto origin = NormalizeOrigin(url);
     if (!origin) throw std::invalid_argument("invalid_origin");
     const std::string cleanName = CleanLabel(name);
+    if (url.find('#') != std::string_view::npos) throw std::invalid_argument("invalid_origin");
     auto db = Open();
     auto stmt = Prepare(db.get(), "INSERT INTO sites(origin,name,url,enabled) VALUES(?,?,?,?);");
     Bind(stmt.get(), 1, *origin);
@@ -214,7 +215,7 @@ void RenameSite(std::string_view origin, std::string_view name) {
 void ChangeUrl(std::string_view oldOrigin, std::string_view url) {
     const std::string oldKey = CanonicalOrigin(oldOrigin);
     const auto newKey = NormalizeOrigin(url);
-    if (!newKey) throw std::invalid_argument("invalid_origin");
+    if (!newKey || url.find('#') != std::string_view::npos) throw std::invalid_argument("invalid_origin");
     auto db = Open();
     if (*newKey == oldKey) {
         auto stmt = Prepare(db.get(), "UPDATE sites SET url=? WHERE origin=?;");
