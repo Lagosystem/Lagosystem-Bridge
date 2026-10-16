@@ -175,6 +175,7 @@ private:
         if (address.ShowModal() != wxID_OK) return;
         policy::AddSite(Convert(name.GetValue()), Convert(address.GetValue()), false);
         const auto origin = policy::NormalizeOrigin(Convert(address.GetValue()));
+        if (origin) policy::Audit(*origin, "manager.site.add", "[disabled]", true);
         RefreshAll(origin.value_or(""));
         wxMessageBox("The new website is DISABLED until enabled here, with no permissions.",
                      "Site added", wxOK | wxICON_INFORMATION, this);

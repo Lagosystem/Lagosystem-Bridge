@@ -28,3 +28,10 @@ Audit entries log native allow/deny policy decisions, not proof that a serial wr
 4. Implement OS-mediated strong reauthentication if required, assessing each platform's installed agent and accessibility.
 5. Sign/notarize binary releases; review store extension IDs and all browser variants.
 6. Never interpret synthetic serial fixtures as legal-for-trade certification or fiscal printer homologation.
+
+
+## Packaging status
+
+In the source CMake project, `LAGOSYSTEM_BRIDGE_BUILD_MANAGER=ON` is **opt-in** until wxWidgets/SQLite3 packages are configured across the supported OS matrix. Native Host always requires SQLite3. Windows static vcpkg triplets (matching /MT) avoid missing SQLite/wx DLLs; Linux GTK/wx dynamic libraries and macOS .dylibs must be bundled or guaranteed on the deployment environment. No claim of a fully self-contained signed macOS .app or Windows executable is made before a verified build.
+
+No CI, CMake build, unit fixture or physical hardware test was run for these changes. Publishing a production binary from this source without that validation would be unsafe.
