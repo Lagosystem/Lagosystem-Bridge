@@ -48,10 +48,10 @@ fi
 
 # GitHub's /releases/latest only includes stable, published releases.
 repo='Lagosystem/Lagosystem-Bridge'
-metadata="$(curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "https://api.github.com/repos/$repo/releases/latest")"
+metadata="$(curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "https://api.github.com/repos/$repo/releases?per_page=10")"
 tag="$(printf '%s\n' "$metadata" | sed -n 's/^[[:space:]]*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)"
 if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
-  echo "No eligible published stable release found." >&2; exit 4
+  echo "No eligible published release found (including prereleases)." >&2; exit 4
 fi
 asset="lagosystem-bridge-$tag-$platform-$arch"
 case "$platform" in linux) asset="$asset.tar.gz" ;; macos) asset="$asset.tar.gz" ;; esac
@@ -87,6 +87,10 @@ target="$data/bin/lagosystem-bridge"
 tar -xOzf "$temporary/$asset" "$bundle/bin/lagosystem-bridge" > "$temporary/lagosystem-bridge"
 chmod 700 "$temporary/lagosystem-bridge"
 mv -f "$temporary/lagosystem-bridge" "$target"
+if tar -tzf "$temporary/$asset" | grep -Fxq "$bundle/assets/lagosystem-bridge.png"; then
+  tar -xOzf "$temporary/$asset" "$bundle/assets/lagosystem-bridge.png" > "$data/icon.png"
+  chmod 644 "$data/icon.png"
+fi
 printf '%s\n' "$site_url" > "$config/site-url"
 chmod 600 "$config/site-url"
 
