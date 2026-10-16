@@ -11,6 +11,12 @@
 #include <wx/stattext.h>
 #include <algorithm>
 #include <cstdlib>
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+#include <fstream>
 #include <stdexcept>
 #include <exception>
 #include <vector>
@@ -288,6 +294,33 @@ class Application final : public wxApp {
 public:
     bool OnInit() override {
         try {
+#ifdef _WIN32
+            HANDLE token{};
+            if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) return false;
+            TOKEN_ELEVATION level{};
+            DWORD bytes{};
+            const bool status = GetTokenInformation(token, TokenElevation, &level, sizeof(level), &bytes) != 0;
+            CloseHandle(token);
+            if (!status || level.TokenIsElevated) return false;
+#else
+            if (geteuid() == 0 || getuid() == 0) return false;
+#endif
+            // Legacy installer URL becomes a disabled suggestion, never a grant.
+            try {
+                std::filesystem::path hint = lagosystem::policy::DatabasePath().parent_path();
+#ifdef _WIN32
+                hint /= "site-url.txt";
+#else
+                hint /= "site-url";
+#endif
+                std::ifstream file(hint);
+                std::string url;
+                if (std::getline(file, url)) {
+                    const auto origin = lagosystem::policy::NormalizeOrigin(url);
+                    if (origin && !lagosystem::policy::GetSite(*origin))
+                        lagosystem::policy::AddSite("Imported installer site", url, false);
+                }
+            } catch (...) { /* Hint is optional; never activate automatically. */ }
             auto* frame = new ManagerFrame();
             frame->Show();
             return true;

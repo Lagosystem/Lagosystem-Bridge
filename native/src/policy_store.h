@@ -1,5 +1,5 @@
-#include <cstdint>
 // SPDX-License-Identifier: GPL-3.0-or-later
+#include <cstdint>
 #pragma once
 #include <filesystem>
 #include <optional>

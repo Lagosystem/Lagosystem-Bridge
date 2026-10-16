@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "policy_store.h"
+#include "export_storage.h"
 #include <sqlite3.h>
 #include <algorithm>
 #include <cctype>
@@ -306,20 +307,27 @@ std::vector<FolderGrant> ListFolders(std::string_view origin) {
     Bind(stmt.get(), 1, CanonicalOrigin(origin));
     std::vector<FolderGrant> rows;
     while (sqlite3_step(stmt.get()) == SQLITE_ROW)
-        rows.push_back({sqlite3_column_int64(stmt.get(), 0), fs::path(Text(stmt.get(), 1))});
+        rows.push_back({sqlite3_column_int64(stmt.get(), 0), fs::u8path(Text(stmt.get(), 1))});
     return rows;
 }
 void AddFolder(std::string_view origin, const fs::path& directory) {
     if (directory.empty() || !directory.is_absolute() || fs::is_symlink(directory))
         throw std::invalid_argument("invalid_folder");
     const fs::path resolved = fs::canonical(directory);
-    if (!fs::is_directory(resolved)) throw std::invalid_argument("invalid_folder");
+    if (!lagosystem::storage::IsExportDirectoryAllowed(resolved))
+        throw std::invalid_argument("invalid_folder");
     const std::string key = CanonicalOrigin(origin);
     auto db = Open();
     RequireSite(db.get(), key);
     auto stmt = Prepare(db.get(), "INSERT OR IGNORE INTO folders(origin,directory) VALUES(?,?);");
     Bind(stmt.get(), 1, key);
+    #ifdef _WIN32
+    const auto raw = resolved.u8string();
+    const std::string utf8(reinterpret_cast<const char*>(raw.data()), raw.size());
+    Bind(stmt.get(), 2, utf8);
+#else
     Bind(stmt.get(), 2, resolved.string());
+#endif
     Done(stmt.get());
 }
 void RemoveFolder(std::string_view origin, std::int64_t id) {
@@ -337,7 +345,7 @@ std::optional<fs::path> AllowedFolder(std::string_view origin, std::int64_t id) 
     Bind(stmt.get(), 1, key);
     sqlite3_bind_int64(stmt.get(), 2, id);
     if (sqlite3_step(stmt.get()) != SQLITE_ROW) return std::nullopt;
-    return fs::path(Text(stmt.get(), 0));
+    return fs::u8path(Text(stmt.get(), 0));
 }
 void Audit(std::string_view origin, std::string_view action, std::string_view resource, bool allowed) {
     try {

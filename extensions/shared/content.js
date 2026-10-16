@@ -18,7 +18,7 @@ window.addEventListener("message", (event) => {
   const runtime = globalThis.browser?.runtime ?? globalThis.chrome.runtime;
   const payload = { channel: CHANNEL, action: request.action, deviceId: request.deviceId,
     kind: request.kind, profile: request.profile, baudRate: request.baudRate,
-    filename: request.filename, base64: request.base64, selectDirectory: request.selectDirectory };
+    filename: request.filename, base64: request.base64, selectDirectory: request.selectDirectory, folderId: request.folderId };
   runtime.sendMessage(payload).then((response) => {
     window.postMessage({ channel: CHANNEL, direction: "response",
       requestId: request.requestId, payload: response }, origin);
