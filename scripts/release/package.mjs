@@ -55,6 +55,7 @@ if(kind==='native') {
   const binary=os==='windows'
     ?join(build,'Release',executable):join(build,executable);
   copy(binary,join(root,'bin',executable));
+  copy('assets/f5987213-e8f8-4cd7-a10f-17bbebac061b.png',join(root,'assets','lagosystem-bridge.png'));
   if(os!=='windows') chmodSync(join(root,'bin',executable),0o755);
   copy('native/LICENSE',join(root,'LICENSE'));
   copy('native/README.md',join(root,'README.md'));
@@ -72,7 +73,7 @@ if(kind==='native') {
   for(const family of ['chromium','firefox']) {
     const name='lagosystem-bridge-'+tag+'-'+family;
     const root=join(staging,name);
-    for(const file of ['manifest.json','background.js','content.js','popup.html','popup.js','LICENSE'])
+    for(const file of ['manifest.json','background.js','content.js','popup.html','popup.js','LICENSE','icons/icon.png'])
       copy(join('extensions',family,file),join(root,file));
     copy('docs/releases/v0.2.0-beta.1.md',join(root,'RELEASE-NOTES.md'));
     writeFileSync(join(root,'NOTICE-BETA.txt'),

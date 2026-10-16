@@ -32,6 +32,9 @@ for (const family of ['chromium','firefox']) {
     new Script(read(path), { filename:path });
   }
   assert.ok(existsSync(base + 'popup.html'));
+  assert.ok(existsSync(base + 'icons/icon.png'), 'Missing extension icon for ' + family);
+  assert.equal(manifest.icons['128'], 'icons/icon.png');
+  assert.equal(manifest.action.default_icon['16'], 'icons/icon.png');
   for (const common of ['background.js','content.js']) {
     assert.equal(read(base + common), read('extensions/shared/' + common),
       family + ' must use synchronized shared/' + common);

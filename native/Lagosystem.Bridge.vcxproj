@@ -70,7 +70,7 @@
   <ItemGroup>
     <ResourceCompile Include="resources\windows.rc">
       <AdditionalIncludeDirectories>
-        $(ProjectDir)resources;%(AdditionalIncludeDirectories)
+        $(ProjectDir)resources;$(ProjectDir)..\assets;%(AdditionalIncludeDirectories)
       </AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>

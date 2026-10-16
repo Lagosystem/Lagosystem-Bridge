@@ -1,5 +1,8 @@
 #include <winver.h>
 
+// The icon is included in the compiled Windows PE at build time.
+1 ICON "lagosystem_native_ico.ico"
+
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 0,2,0,0
  PRODUCTVERSION 0,2,0,0
