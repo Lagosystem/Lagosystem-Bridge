@@ -10,6 +10,8 @@
 #include <wx/listctrl.h>
 #include <wx/stattext.h>
 #include <algorithm>
+#include <cstdlib>
+#include <stdexcept>
 #include <exception>
 #include <vector>
 
@@ -21,7 +23,7 @@ constexpr const char* capabilities[] = {
     "exports.save"
 };
 std::string Convert(const wxString& value) {
-    return value.ToUTF8().ToStdString();
+    return value.ToStdString(wxConvUTF8);
 }
 wxString Display(const std::string& value) {
     return wxString::FromUTF8(value);
@@ -259,7 +261,11 @@ private:
         wxDirDialog dialog(this, "Select an EXPORT-ONLY folder (no file reads)", "",
                            wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
         if (dialog.ShowModal() != wxID_OK) return;
+        #ifdef _WIN32
+        const std::filesystem::path selected = dialog.GetPath().ToStdWstring();
+#else
         const std::filesystem::path selected = Convert(dialog.GetPath());
+#endif
         if (!lagosystem::storage::IsExportDirectoryAllowed(selected))
             throw std::invalid_argument("This location is sensitive, protected or not writable.");
         if (!Confirm(this, "Allow new PDF/XML exports for " + Display(origin) +
@@ -282,7 +288,6 @@ class Application final : public wxApp {
 public:
     bool OnInit() override {
         try {
-            if (const char* home = std::getenv("HOME"); home != nullptr) { (void)home; }
             auto* frame = new ManagerFrame();
             frame->Show();
             return true;

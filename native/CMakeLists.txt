@@ -31,7 +31,26 @@ set(SOURCES
     src/scale_protocol.cpp
 )
 
+# The security policy is authoritative inside the native host (SQLite3 per-user DB).
+find_package(SQLite3 REQUIRED)
+list(APPEND SOURCES src/policy_store.cpp)
 add_executable(lagosystem-bridge ${SOURCES})
+target_link_libraries(lagosystem-bridge PRIVATE SQLite::SQLite3)
+
+# Manager is a separate interactive executable. Do NOT start it from web messages.
+option(LAGOSYSTEM_BRIDGE_BUILD_MANAGER "Build wxWidgets per-user permissions manager" OFF)
+if(LAGOSYSTEM_BRIDGE_BUILD_MANAGER)
+  find_package(wxWidgets REQUIRED COMPONENTS core base)
+  include(${wxWidgets_USE_FILE})
+  if(WIN32)
+    add_executable(lagosystem-bridge-manager WIN32 manager/main.cpp src/policy_store.cpp src/export_storage.cpp resources/windows.rc)
+    target_include_directories(lagosystem-bridge-manager PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../assets")
+  else()
+    add_executable(lagosystem-bridge-manager manager/main.cpp src/policy_store.cpp src/export_storage.cpp)
+  endif()
+  target_link_libraries(lagosystem-bridge-manager PRIVATE SQLite::SQLite3 ${wxWidgets_LIBRARIES})
+  target_include_directories(lagosystem-bridge-manager PRIVATE src)
+endif()
 
 # Adiciona arquivos extras apenas para exibição no Solution Explorer das IDEs
 target_sources(lagosystem-bridge PRIVATE

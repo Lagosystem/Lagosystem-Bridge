@@ -13,6 +13,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "device_control.h"
+#include "policy_store.h"
 #include "native_consent.h"
 #include "export_storage.h"
 
@@ -136,7 +137,7 @@ std::vector<unsigned char> DecodeBase64(std::string_view source)
     return data;
 }
 
-json WriteExport(const json& request)
+json WriteExport(const json& request, const std::string& origin)
 {
     if (!request.contains("filename") || !request["filename"].is_string()
         || !request.contains("base64") || !request["base64"].is_string())
@@ -159,8 +160,17 @@ json WriteExport(const json& request)
     if (request.contains("selectDirectory") && !request["selectDirectory"].is_boolean())
         throw std::runtime_error("invalid_export_request");
     const bool selectDirectory = request.value("selectDirectory", false);
+    const bool designatedFolder = request.contains("folderId");
+    if (designatedFolder && (!request["folderId"].is_number_integer() ||
+        request["folderId"].get<std::int64_t>() <= 0 || selectDirectory))
+        throw std::runtime_error("invalid_export_request");
     fs::path exports;
-    if (selectDirectory) {
+    if (designatedFolder) {
+        const auto permitted = lagosystem::policy::AllowedFolder(origin,
+            request["folderId"].get<std::int64_t>());
+        if (!permitted) throw std::runtime_error("policy_resource_denied");
+        exports = *permitted;
+    } else if (selectDirectory) {
         // The browser cannot choose a filesystem path: only the local user can.
         const std::optional<fs::path> selected = lagosystem::ui::PickExportDirectory();
         if (!selected) throw std::runtime_error("user_denied");
@@ -177,7 +187,8 @@ json WriteExport(const json& request)
     lagosystem::storage::WriteNewExport(exports, filename, bytes);
     // Do not reveal absolute local paths to web content.
     return {{"ok", true}, {"filename", filename},
-            {"location", selectDirectory ? "selected_directory" : "Lagosystem/Exports"}};
+            {"location", selectDirectory ? "selected_directory" :
+                 designatedFolder ? "authorized_folder" : "Lagosystem/Exports"}};
 }
 
 
@@ -214,11 +225,50 @@ json Dispatch(const json& input)
 {
     if (!input.is_object()) throw std::runtime_error("invalid_request");
     const std::string action = input.value("action", std::string{});
-    if (action == "config.get")
-    {
-        const auto website = ConfiguredWebsite();
-        return {{"ok", true}, {"siteUrl", website ? json(*website) : json(nullptr)}};
+    // Read-only metadata for trusted extension UI. Not included in the webpage allowlist.
+    if (action == "config.list") {
+        json sites = json::array();
+        for (const auto& site : lagosystem::policy::ListSites())
+            sites.push_back({{"name", site.name}, {"url", site.url},
+                             {"origin", site.origin}, {"enabled", site.enabled}});
+        return {{"ok", true}, {"sites", sites}};
     }
+    if (action == "config.get") {
+        for (const auto& site : lagosystem::policy::ListSites())
+            if (site.enabled) return {{"ok", true}, {"siteUrl", site.url}};
+        const auto suggestion = ConfiguredWebsite(); // legacy installer hint only, NO grant
+        return {{"ok", true}, {"siteUrl", suggestion ? json(*suggestion) : json(nullptr)}};
+    }
+
+    // The browser identifies the EXTENSION to the host, not the webpage. Only the
+    // audited extension background may derive siteOrigin from sender.url.
+    // The webpage cannot pass its own siteOrigin through the extension allowlist.
+    if (!input.contains("siteOrigin") || !input["siteOrigin"].is_string())
+        throw std::runtime_error("policy_origin_denied");
+    const std::string origin = input["siteOrigin"].get<std::string>();
+    const auto normalized = lagosystem::policy::NormalizeOrigin(origin);
+    if (!normalized || *normalized != origin)
+        throw std::runtime_error("policy_origin_denied");
+    std::string resource = "*";
+    if (action == "exports.save") {
+        if (input.value("selectDirectory", false)) resource = "picker";
+        else if (input.contains("folderId")) resource = "folder"; // checked by AllowedFolder below
+        else resource = "default";
+    } else if (action == "devices.pair" || action == "devices.unpair" ||
+               action == "devices.probe" || action == "devices.testPrint") {
+        if (!input.contains("deviceId") || !input["deviceId"].is_string())
+            throw std::runtime_error("invalid_device");
+        resource = input["deviceId"].get<std::string>();
+    }
+    const bool folder = action == "exports.save" && resource == "folder";
+    const bool approved = folder
+        ? input.contains("folderId") && input["folderId"].is_number_integer() &&
+          input["folderId"].get<std::int64_t>() > 0 &&
+          lagosystem::policy::AllowedFolder(origin, input["folderId"].get<std::int64_t>()).has_value()
+        : lagosystem::policy::IsAllowed(origin, action, resource);
+    lagosystem::policy::Audit(origin, action, resource, approved);
+    if (!approved) throw std::runtime_error("policy_resource_denied");
+
     if (action == "ping")
         return {{"ok", true}, {"protocolVersion", 1}, {"host", "LocalDeviceBridge"},
                 {"platform",
@@ -236,13 +286,28 @@ json Dispatch(const json& input)
                     "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"})},
                 {"protocols", json::array({"ascii-stream", "escpos", "escp"})},
                 {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint"})},
-                {"notImplemented", json::array({"filesystem.pick", "filesystem.read", "os.configure", "vendor.protocols"})}};
-    if (action == "exports.save")
-        return WriteExport(input);
+                {"notImplemented", json::array({"filesystem.pick", "filesystem.read",
+                    "os.configure", "vendor.protocols"})}};
+    if (action == "exports.save") return WriteExport(input, origin);
     if (action == "devices.list" || action == "devices.paired" ||
         action == "devices.pair" || action == "devices.unpair" ||
-        action == "devices.probe" || action == "devices.testPrint")
-        return lagosystem::hardware::DeviceDispatch(input);
+        action == "devices.probe" || action == "devices.testPrint") {
+        json result = lagosystem::hardware::DeviceDispatch(input);
+        if (action == "devices.paired" && result.value("ok", false) &&
+            result.contains("devices") && result["devices"].is_array()) {
+            json filtered = json::array();
+            for (const json& device : result["devices"]) {
+                if (!device.is_object()) continue;
+                const std::string id = device.value("deviceId", std::string{});
+                if (lagosystem::policy::IsAllowed(origin, "devices.probe", id) ||
+                    lagosystem::policy::IsAllowed(origin, "devices.testPrint", id) ||
+                    lagosystem::policy::IsAllowed(origin, "devices.pair", id))
+                    filtered.push_back(device);
+            }
+            result["devices"] = std::move(filtered);
+        }
+        return result;
+    }
     throw std::runtime_error("unknown_or_unpaired_operation");
 }
 } // namespace

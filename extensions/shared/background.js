@@ -17,7 +17,7 @@ async function originAllowed(origin) {
 
 runtime.onMessage.addListener((message, sender, reply) => {
   (async () => {
-    const address = sender.url ?? sender.tab?.url;
+    const address = sender.url; // Only content-script sender origin, not a tab fallback.
     if (!address || !message || message.channel !== CHANNEL || !ALLOWED.has(message.action))
       return { ok: false, error: "invalid_request" };
     const url = new URL(address);
@@ -25,7 +25,7 @@ runtime.onMessage.addListener((message, sender, reply) => {
         (url.protocol === "http:" && !["localhost", "127.0.0.1"].includes(url.hostname)) ||
         !await originAllowed(url.origin))
       return { ok: false, error: "origin_not_approved" };
-    const request = { action: message.action };
+    const request = { action: message.action, siteOrigin: url.origin }; // Never read siteOrigin from page payload.
     // Whitelist exact serializable arguments, never pass arbitrary objects/commands.
     if (["devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"].includes(message.action)) {
       if (typeof message.deviceId !== "string" || message.deviceId.length > 180)
@@ -49,6 +49,11 @@ runtime.onMessage.addListener((message, sender, reply) => {
       if (message.selectDirectory !== undefined && typeof message.selectDirectory !== "boolean")
         return { ok: false, error: "invalid_export" };
       request.selectDirectory = message.selectDirectory === true;
+      if (message.folderId !== undefined) {
+        if (!Number.isSafeInteger(message.folderId) || message.folderId < 1)
+          return {ok:false,error:"invalid_export"};
+        request.folderId = message.folderId;
+      }
     }
     const saved = await storage.local.get("perOriginDevices");
     const grants = saved.perOriginDevices && typeof saved.perOriginDevices === "object"

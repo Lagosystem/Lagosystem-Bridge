@@ -112,6 +112,16 @@ bool Protected(const fs::path& canonical)
 
 } // namespace
 
+bool IsExportDirectoryAllowed(const fs::path& directory)
+{
+    try {
+        if (directory.empty() || !directory.is_absolute() || fs::is_symlink(directory)) return false;
+        std::error_code error;
+        const fs::path canonical = fs::canonical(directory, error);
+        return !error && fs::is_directory(canonical) && !Protected(canonical);
+    } catch (...) { return false; }
+}
+
 void WriteNewExport(const fs::path& directory, const std::string& filename,
                     std::span<const unsigned char> bytes)
 {
