@@ -136,7 +136,7 @@ chmod 700 "$launcher"
 if [ "$platform" = linux ]; then
   mkdir -p "$applications"
   # Desktop Entry Exec quoted to support user home paths containing spaces.
-  printf '[Desktop Entry]\\nType=Application\\nName=Lagosystem Bridge\\nComment=Open your configured local device bridge website\\nExec="%s"\\nIcon=%s\\nTerminal=false\\nCategories=Utility;\\n' "$launcher" "$data/icon.png" > "$applications/lagosystem-bridge.desktop"
+  printf '[Desktop Entry]\nType=Application\nName=Lagosystem Bridge\nComment=Open your configured local device bridge website\nExec="%s"\nIcon=%s\nTerminal=false\nCategories=Utility;\n' "$launcher" "$data/icon.png" > "$applications/lagosystem-bridge.desktop"
   chmod 644 "$applications/lagosystem-bridge.desktop"
 else
   app="$HOME/Applications/Lagosystem Bridge.app"
