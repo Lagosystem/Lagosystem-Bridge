@@ -71,7 +71,9 @@ $origins = @($origins | Select-Object -Unique)
 # 'latest' deliberately excludes beta releases. GitHub supplies the checksums
 # beside the release assets; a signed checksum manifest is a future enhancement.
 $headers = @{ 'User-Agent' = 'Lagosystem-Bridge-Installer' }
-$release = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/Lagosystem/Lagosystem-Bridge/releases/latest'
+$releases = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/Lagosystem/Lagosystem-Bridge/releases?per_page=20'
+$release = @($releases | Where-Object { -not $_.draft } | Sort-Object published_at -Descending) | Select-Object -First 1
+if (-not $release) { throw 'No published GitHub Release is available.' }
 $tag = [string]$release.tag_name
 if ($tag -cnotmatch '^v\d+\.\d+\.\d+([.-][a-zA-Z0-9.-]+)?$') {
     throw 'No eligible stable release was found.'
