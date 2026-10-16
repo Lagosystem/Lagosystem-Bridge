@@ -45,3 +45,10 @@ Após compilar e assinar o executável, o usuário deve instalar sua própria c�
     bash native/install-unix.sh /caminho/absoluto/lagosystem-bridge <ID_PUBL_CHROME>
 
 O ID Chromium deve ser realmente atribuído à extensão instalada (32 letras a–p); o Firefox usa o ID fixo declarado no manifesto. Os exemplos acima contêm placeholders: substituí-los por paths e IDs reais. No macOS usar o caminho real do binário compilado para sua arquitetura; distribuir uma aplicação apropriadamente assinada/notarizada pode ser necessário para evitar bloqueios do Gatekeeper.
+
+
+### Bridge Manager e permissões locais (nova implementação)
+
+A política SQLite é consultada **no próprio host** antes de cada operação. Abra o aplicativo `lagosystem-bridge-manager` (GUI wxWidgets) para conceder recursos por origem, renomear sites, cadastrar destinos de exportação e consultar auditoria. O antigo `site-url` passa a ser somente uma sugestão desabilitada; instalar uma extensão ou autorizar site no popup não autoriza acesso nativo por si só.
+
+CMake requer SQLite3; para gerar também a GUI, use a flag `-DLAGOSYSTEM_BRIDGE_BUILD_MANAGER=ON` e wxWidgets. Reautenticação forte (Windows Hello/Touch ID/PAM) não está concluída; confirmação é um diálogo GUI dentro da mesma sessão. Nenhuma execução de CI, compilação ou testes ocorreu. Consulte `docs/manager-security.md`.

@@ -32,6 +32,10 @@ for (const family of ['chromium','firefox']) {
     new Script(read(path), { filename:path });
   }
   assert.ok(existsSync(base + 'popup.html'));
+  assert.ok(read(base + 'background.js').includes('siteOrigin: url.origin'),
+    family + ' must derive native origin from sender.url');
+  assert.ok(!read(base + 'background.js').includes('message.siteOrigin'),
+    family + ' must ignore siteOrigin supplied by webpages');
   assert.ok(existsSync(base + 'icons/icon.png'), 'Missing extension icon for ' + family);
   assert.equal(manifest.icons['128'], 'icons/icon.png');
   assert.equal(manifest.action.default_icon['16'], 'icons/icon.png');

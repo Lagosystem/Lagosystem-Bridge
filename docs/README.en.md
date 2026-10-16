@@ -117,3 +117,13 @@ Use `exports.save` with `{filename:"report.pdf",base64:pdfBase64,selectDirectory
 On Linux/macOS use `bash installers/install.sh --url https://your-system.example:8443/app --chromium-ids ACTUAL_EXTENSION_ID` (optional ID list). On Windows compile `installers/Lagosystem-Bridge.iss` with Inno Setup 6; it invokes the non-elevated PowerShell bootstrapper. Each platform fetches the latest published GitHub Release, including prereleases, and checks the downloaded archive's SHA-256 sidecar before unpacking.
 
 The installer URL is a local suggestion shown inside the extension popup, **not an automatic origin grant**. Browser-store extension installation/signing and per-site/device approval are separate. Native Messaging launches the stdio host on demand rather than at OS login. See [installer guide](installers.md).
+
+
+## Native Bridge Manager and default-deny policies
+
+The independent wxWidgets `lagosystem-bridge-manager` GUI lets the signed-in OS user create, rename, disable and remove website origins and explicitly grant scoped serial-port and XML/PDF export capabilities. URL changes to a new origin **revoke** all old permissions. Installer URLs are imported as **disabled suggestions**. C++ Native Messaging host verifies each origin/action/resource against per-user SQLite even when extension storage would approve a webpage; the browser never receives policy mutation commands. Build using SQLite3 and wxWidgets development dependencies, with `-DLAGOSYSTEM_BRIDGE_BUILD_MANAGER=ON`, after separately authorizing builds. The host remains on-demand; no elevated services or daemon were introduced.
+
+Caution: native GUI dialogs are confirmation prompts, **not** Windows Hello/Touch ID/PAM reauthentication. OS session-level malware remains outside this user's privilege model. Arbitrary filesystem reads, overwrites, shell execution, and path-passing from a webpage are not enabled. More details in `docs/manager-security.md`.
+
+
+An approved site may query `exports.folders` for opaque folder IDs, then send `exports.save` with `folderId`, XML/PDF `filename`, and `base64`. No filesystem path is ever sent to the page, and no arbitrary file reads are available.

@@ -84,9 +84,18 @@ mkdir -p "$data/bin" "$config" "$firefox"
 # Stream exactly one known tar member; never unpack untrusted paths into the home directory.
 bundle="${asset%.tar.gz}"
 target="$data/bin/lagosystem-bridge"
+manager="$data/bin/lagosystem-bridge-manager"
+# Do not install older packages without a native permissions manager.
+if ! tar -tzf "$temporary/$asset" | grep -Fx "$bundle/bin/lagosystem-bridge-manager" >/dev/null; then
+  echo "Release lacks Bridge Manager. Publish a manager-enabled release first." >&2
+  exit 4
+fi
+tar -xOzf "$temporary/$asset" "$bundle/bin/lagosystem-bridge-manager" > "$temporary/lagosystem-bridge-manager"
+chmod 700 "$temporary/lagosystem-bridge-manager"
 tar -xOzf "$temporary/$asset" "$bundle/bin/lagosystem-bridge" > "$temporary/lagosystem-bridge"
 chmod 700 "$temporary/lagosystem-bridge"
 mv -f "$temporary/lagosystem-bridge" "$target"
+mv -f "$temporary/lagosystem-bridge-manager" "$manager"
 if tar -tzf "$temporary/$asset" | grep -Fx "$bundle/assets/lagosystem-bridge.png" > /dev/null; then
   tar -xOzf "$temporary/$asset" "$bundle/assets/lagosystem-bridge.png" > "$data/icon.png"
   chmod 644 "$data/icon.png"
@@ -118,25 +127,21 @@ else
   echo "No Chromium IDs supplied: Firefox configured; Chromium registration skipped."
 fi
 
-launcher="$data/open-site.sh"
+launcher="$data/open-manager.sh"
 cat > "$launcher" <<'LAUNCH'
 #!/usr/bin/env bash
 set -euo pipefail
 if [ "$(uname -s)" = Darwin ]; then
-  file="$HOME/Library/Application Support/Lagosystem Bridge/site-url"
-  IFS= read -r url < "$file"
-  open "$url"
+  exec "$HOME/Library/Application Support/Lagosystem Bridge/bin/lagosystem-bridge-manager"
 else
-  file="${XDG_CONFIG_HOME:-$HOME/.config}/lagosystem-bridge/site-url"
-  IFS= read -r url < "$file"
-  xdg-open "$url"
+  exec "${XDG_DATA_HOME:-$HOME/.local/share}/lagosystem-bridge/bin/lagosystem-bridge-manager"
 fi
 LAUNCH
 chmod 700 "$launcher"
 if [ "$platform" = linux ]; then
   mkdir -p "$applications"
   # Desktop Entry Exec quoted to support user home paths containing spaces.
-  printf '[Desktop Entry]\nType=Application\nName=Lagosystem Bridge\nComment=Open your configured local device bridge website\nExec="%s"\nIcon=%s\nTerminal=false\nCategories=Utility;\n' "$launcher" "$data/icon.png" > "$applications/lagosystem-bridge.desktop"
+  printf '[Desktop Entry]\nType=Application\nName=Lagosystem Bridge\nComment=Manage website origins and hardware permissions\nExec="%s"\nIcon=%s\nTerminal=false\nCategories=Utility;\n' "$launcher" "$data/icon.png" > "$applications/lagosystem-bridge.desktop"
   chmod 644 "$applications/lagosystem-bridge.desktop"
 else
   app="$HOME/Applications/Lagosystem Bridge.app"
@@ -154,6 +159,6 @@ else
 </dict></plist>
 PLIST
 fi
-echo "Installed $tag for current user. Configured URL: $site_url"
+echo "Installed $tag for current user. URL imported as a DISABLED suggestion: $site_url"
 echo "Browser extensions still require installation and explicit site approval in their popups."
 echo "Native Messaging launches the host ON DEMAND; do not autostart the stdio executable."

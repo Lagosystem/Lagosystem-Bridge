@@ -42,17 +42,37 @@ refresh().catch(()=>{status.textContent="Não foi possível consultar a permiss�
 const configuredLabel = document.getElementById("configured-site");
 const openSite = document.getElementById("open-site");
 let configuredUrl = "";
+const configuredSites = [];
 async function loadConfiguredSite() {
   try {
-    const result = await api.runtime.sendNativeMessage("com.lagosystem.bridge", {action:"config.get"});
-    if (!result?.ok || typeof result.siteUrl !== "string") throw new Error("not_configured");
-    const parsed = new URL(result.siteUrl);
-    if (parsed.protocol !== "https:" &&
-        !(parsed.protocol === "http:" &&
-          ["localhost","127.0.0.1"].includes(parsed.hostname))) throw new Error("invalid_url");
-    configuredUrl = parsed.href;
+    const result = await api.runtime.sendNativeMessage("com.lagosystem.bridge", {action:"config.list"});
+    if (!result?.ok || !Array.isArray(result.sites)) throw new Error("not_configured");
+    for (const site of result.sites) {
+      if (!site.enabled || typeof site.url !== "string" || typeof site.name !== "string") continue;
+      const candidate = new URL(site.url);
+      if (candidate.protocol !== "https:" && !(candidate.protocol === "http:" &&
+          ["localhost", "127.0.0.1"].includes(candidate.hostname))) continue;
+      configuredSites.push({name:site.name, url:candidate.href});
+    }
+    const selector = document.getElementById("configured-sites");
+    selector.textContent = "";
+    configuredSites.forEach((site, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = site.name + " (" + site.url + ")";
+      selector.append(option);
+    });
+    if (configuredSites.length === 0) throw new Error("not_configured");
+    configuredUrl = configuredSites[0].url;
     configuredLabel.textContent = configuredUrl;
     openSite.disabled = false;
+    selector.disabled = false;
+    selector.addEventListener("change", () => {
+      const index = Number(selector.value);
+      configuredUrl = configuredSites[index]?.url ?? "";
+      configuredLabel.textContent = configuredUrl || "Nenhuma URL";
+      openSite.disabled = !configuredUrl;
+    });
   } catch {
     configuredLabel.textContent = "Não configurada ou host indisponível";
   }

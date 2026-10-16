@@ -3,6 +3,8 @@
 button{padding:8px 12px;border-radius:8px;margin:8px 4px 2px 0;cursor:pointer}#site{overflow-wrap:anywhere;font-weight:600}
 p{line-height:1.45}small{opacity:.8}</style></head>
 <body><h3>Local Device Bridge</h3><p>Site atual: <span id="site">—</span></p>
+<label for="configured-sites">Sites configurados no Bridge Manager</label>
+<select id="configured-sites" disabled aria-label="Sites configurados" style="width:100%;max-width:320px"></select>
 <p>URL configurada: <span id="configured-site">Consultando host...</span></p>
 <button id="open-site" type="button" disabled>Abrir site configurado</button>
 <p id="status" role="status">Verificando permissão...</p>

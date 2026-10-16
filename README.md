@@ -62,3 +62,10 @@ No CI, build, automated or physical hardware tests were executed as part of the 
 ### Instaladores por usuário / Per-user installers
 
 See [Instaladores Linux, macOS e Windows / Cross-platform installers](docs/installers.md). The bootstrapper asks for your HTTPS website address and Chromium extension IDs; the native host is launched by the browser *on demand*. Do not configure the Native Messaging stdio executable as a login autostart daemon. Device and site authorization remains explicit.
+
+
+## Native Bridge Manager (em desenvolvimento)
+
+Novo gerenciador gráfico multiplataforma em wxWidgets: cadastre várias URLs, dê nomes amigáveis, habilite/desabilite origens, configure acesso específico a dispositivos e pastas **somente para exportação de novos XML/PDF**, e consulte auditoria. O Host confere uma segunda política por usuário em SQLite, além da autorização do navegador. URLs instaladas inicialmente ficam desabilitadas; nenhuma permissão é transferida entre origens ao modificar domínios/portas.
+
+[Modelo de segurança e limitações](docs/manager-security.md) · [Interface e dependências](native/manager/README.md) · [Instalação multiplataforma](docs/installers.md). O código está em revisão: novos binários ainda dependem de compilação e validação com autorização específica. A interface não usa Windows Hello/Touch ID/PAM para reautenticação forte nesta versão, e o software não protege contra outros processos maliciosos executados com o mesmo UID.

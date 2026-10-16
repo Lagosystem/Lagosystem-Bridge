@@ -28,6 +28,8 @@ for directory in "$firefox" "${browsers[@]}"; do
     rm -f -- "$file"
   fi
 done
-rm -rf -- "$data"
-if [ "$config" != "$data" ]; then rm -f -- "$config/site-url"; rmdir -- "$config" 2>/dev/null || true; fi
-echo "Lagosystem Bridge uninstalled for this user. Hardware pairings and exports were preserved."
+# Preserve the per-user SQLite grants and audit until the user explicitly opts to purge.
+rm -rf -- "$data/bin"
+rm -f -- "$data/icon.png" "$data/open-site.sh" "$data/open-manager.sh"
+if [ "$config" != "$data" ]; then rm -f -- "$config/site-url"; fi
+echo "Lagosystem Bridge uninstalled for this user. SQLite permissions, pairings, audits and exports were preserved."
