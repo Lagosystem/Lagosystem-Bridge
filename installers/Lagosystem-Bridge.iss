@@ -20,10 +20,11 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=..\assets\lagosystem_native_ico.ico
-UninstallDisplayIcon=..\assets\lagosystem_native_ico.ico
+UninstallDisplayIcon={app}\lagosystem_native_ico.ico
 
 [Files]
 Source: "install-windows.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\assets\lagosystem_native_ico.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Run]
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\install-windows.ps1"" -SiteUrl ""{code:GetSiteUrl}"" -ChromiumExtensionIds ""{code:GetIds}"" -NonInteractive"; Flags: runhidden waituntilterminated; StatusMsg: "Baixando e verificando o Native Host e configurando o navegador..."
