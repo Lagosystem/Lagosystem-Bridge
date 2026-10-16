@@ -84,7 +84,10 @@ public:
         root->Add(top, 1, wxEXPAND);
 
         root->Add(new wxStaticText(panel, wxID_ANY,
-            "Recent audit events — grants are never changed by a browser message"),
+            "Security: GUI confirmations are NOT OS biometrics or protection from same-user malware"),
+            0, wxLEFT | wxTOP, 12);
+        root->Add(new wxStaticText(panel, wxID_ANY,
+            "Recent audit decisions — grants are never changed by a browser message"),
             0, wxLEFT | wxTOP, 12);
         audit_ = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(-1, 140),
                                wxLC_REPORT | wxLC_SINGLE_SEL);

@@ -67,7 +67,9 @@ Database Open() {
     if (chmod(parent.c_str(), S_IRWXU) != 0) throw std::runtime_error("policy_path_denied");
 #endif
     sqlite3* raw = nullptr;
-    const int status = sqlite3_open_v2(file.string().c_str(), &raw,
+    const auto nativeUtf8 = file.u8string();
+    const std::string filename(reinterpret_cast<const char*>(nativeUtf8.c_str()), nativeUtf8.size());
+    const int status = sqlite3_open_v2(filename.c_str(), &raw,
         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, nullptr);
     Database db(raw, sqlite3_close);
     if (status != SQLITE_OK || !db) throw std::runtime_error("policy_storage_failed");

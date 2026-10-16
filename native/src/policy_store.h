@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include <cstdint>
 #pragma once
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <string>

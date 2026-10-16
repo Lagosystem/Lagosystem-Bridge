@@ -18,6 +18,8 @@ The installer verifies artifact SHA-256 against the adjacent release checksum. T
 
 The native host is a stdin/stdout process launched on demand by the browser. Never register it as an autostart service. The GUI Manager is user-launched from Start Menu / XDG / macOS Applications.
 
+Audit entries log native allow/deny policy decisions, not proof that a serial write or export completed. Windows paths are stored as UTF-8 in SQLite; disk access continues to use OS-native paths.
+
 ## Future review before distribution
 
 1. Obtain specific approval to run all existing CI/build/tests and update fixture expectations where needed.

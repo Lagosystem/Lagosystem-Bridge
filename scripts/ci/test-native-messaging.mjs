@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Native Messaging framing and two browser-adapter simulations (NO physical hardware).
+// This unprovisioned fixture intentionally asserts native default-deny; policy DB grants
+// are covered separately in native/tests/policy_store_fixtures.cpp.
 import assert from 'node:assert/strict';
 import {readFileSync, existsSync, mkdtempSync, rmSync} from 'node:fs';
 import {resolve,join} from 'node:path';
