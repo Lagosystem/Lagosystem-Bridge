@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 
 const tag=process.env.RELEASE_TAG;
-assert.match(tag??'',/^v[0-9]+\\.[0-9]+\\.[0-9]+(?:[-.][0-9A-Za-z.-]+)?$/,'RELEASE_TAG must be a validated semver tag');
+assert.match(tag??'',/^v[0-9]+\.[0-9]+\.[0-9]+(?:[-.][0-9A-Za-z.-]+)?$/,'RELEASE_TAG must be a validated semver tag');
 const notes=join('docs','releases',tag+'.md');
 assert.ok(existsSync(notes),'Add release notes before packaging: '+notes);
 const kind=process.argv[2];
