@@ -118,3 +118,10 @@ const result = await localBridge("exports.save", {
 ```
 
 O usuário seleciona **pessoalmente** a pasta a cada exportação na janela do Windows/Linux/macOS; a página não informa o caminho. O host exige leitura do diretório, permissão de criação e acesso de leitura/escrita ao novo arquivo; recusa pastas reconhecidamente privadas do sistema/aplicações, links inseguros e arquivos existentes. O resultado retorna somente `filename` e `location:"selected_directory"`, nunca o caminho absoluto. Sem desktop/GTK3 (Linux), a seleção falha de modo seguro. A operação não concede acesso para listar, ler, apagar ou sobrescrever outros arquivos. Montagens de Google Drive/OneDrive/NAS são tratadas como pastas comuns quando o sistema operacional realmente permite as operações; permissões do provedor podem acrescentar restrições.
+
+
+## Novo instalador automatizado por usuário
+
+Para Linux/macOS: execute `bash installers/install.sh --url https://seu-sistema.exemplo:8443/app --chromium-ids ID_DA_EXTENSAO` (IDs opcionais; use os IDs reais das extensões instaladas). No macOS também existe `install-macos.sh`. Para Windows, compile o script `installers/Lagosystem-Bridge.iss` no Inno Setup 6; o assistente chama `installers/install-windows.ps1` sem solicitar privilégios administrativos. Todas as plataformas verificam SHA-256 do download do último GitHub Release público (inclusive pré-lançamentos). Execute o desinstalador equivalente para remover o host e os registros por usuário.
+
+**Importante:** a URL fica salva localmente e aparece no popup das novas extensões; ela não é aprovada automaticamente. Instalar/assinar extensões Chromium e Firefox continua dependendo do navegador ou da loja. O processo Native Messaging é ativado sob demanda, não no login. Consulte [Guia dos instaladores](installers.md) para requisitos e limitações.

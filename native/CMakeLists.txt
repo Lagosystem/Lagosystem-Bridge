@@ -69,7 +69,7 @@ elseif(WIN32)
   enable_language(RC)
   # Apenas o .cpp no Windows
   target_sources(lagosystem-bridge PRIVATE src/native_consent.cpp resources/windows.rc)
-  target_include_directories(lagosystem-bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+  target_include_directories(lagosystem-bridge PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources" "${CMAKE_CURRENT_SOURCE_DIR}/../assets")
   target_compile_definitions(lagosystem-bridge PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
   target_link_libraries(lagosystem-bridge PRIVATE Comctl32 Advapi32 Ole32 Shell32)
   # TaskDialogIndirect is exported by Common Controls v6, not the legacy v5.

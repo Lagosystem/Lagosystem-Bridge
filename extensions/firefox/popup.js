@@ -35,3 +35,29 @@ async function change(allow) {
 grant.addEventListener("click",()=>change(true));
 revoke.addEventListener("click",()=>change(false));
 refresh().catch(()=>{status.textContent="Não foi possível consultar a permissão."});
+
+
+// The native installer stores a suggested site locally. It never grants access
+// to that site: permissions can only be granted by the user in this popup.
+const configuredLabel = document.getElementById("configured-site");
+const openSite = document.getElementById("open-site");
+let configuredUrl = "";
+async function loadConfiguredSite() {
+  try {
+    const result = await api.runtime.sendNativeMessage("com.lagosystem.bridge", {action:"config.get"});
+    if (!result?.ok || typeof result.siteUrl !== "string") throw new Error("not_configured");
+    const parsed = new URL(result.siteUrl);
+    if (parsed.protocol !== "https:" &&
+        !(parsed.protocol === "http:" &&
+          ["localhost","127.0.0.1"].includes(parsed.hostname))) throw new Error("invalid_url");
+    configuredUrl = parsed.href;
+    configuredLabel.textContent = configuredUrl;
+    openSite.disabled = false;
+  } catch {
+    configuredLabel.textContent = "Não configurada ou host indisponível";
+  }
+}
+openSite.addEventListener("click", () => {
+  if (configuredUrl) api.tabs.create({url:configuredUrl});
+});
+loadConfiguredSite();

@@ -8,7 +8,9 @@ import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 
 const tag=process.env.RELEASE_TAG;
-assert.equal(tag,'v0.2.0-beta.1','This packager is locked to beta.1');
+assert.match(tag??'',/^v[0-9]+\.[0-9]+\.[0-9]+(?:[-.][0-9A-Za-z.-]+)?$/,'RELEASE_TAG must be a validated semver tag');
+const notes=join('docs','releases',tag+'.md');
+assert.ok(existsSync(notes),'Add release notes before packaging: '+notes);
 const kind=process.argv[2];
 assert.ok(kind==='native'||kind==='extensions','Usage: package.mjs native|extensions');
 const build=process.env.BRIDGE_CI_BUILD_DIR??'.release-build/native';
@@ -55,10 +57,14 @@ if(kind==='native') {
   const binary=os==='windows'
     ?join(build,'Release',executable):join(build,executable);
   copy(binary,join(root,'bin',executable));
+  copy('assets/f5987213-e8f8-4cd7-a10f-17bbebac061b.png',join(root,'assets','lagosystem-bridge.png'));
+  copy('assets/lagosystem_native_ico.ico',join(root,'assets','lagosystem_native_ico.ico'));
+  for(const installer of ['install.sh','uninstall.sh','install-macos.sh','uninstall-macos.sh','install-windows.ps1','Lagosystem-Bridge.iss'])
+    copy(join('installers',installer),join(root,'installers',installer));
   if(os!=='windows') chmodSync(join(root,'bin',executable),0o755);
   copy('native/LICENSE',join(root,'LICENSE'));
   copy('native/README.md',join(root,'README.md'));
-  copy('docs/releases/v0.2.0-beta.1.md',join(root,'RELEASE-NOTES.md'));
+  copy(notes,join(root,'RELEASE-NOTES.md'));
   copy('native/install-windows.ps1',join(root,'install-windows.ps1'));
   copy('native/install-unix.sh',join(root,'install-unix.sh'));
   copy('native/manifests/chromium.json',join(root,'manifests','chromium.json'));
@@ -72,9 +78,9 @@ if(kind==='native') {
   for(const family of ['chromium','firefox']) {
     const name='lagosystem-bridge-'+tag+'-'+family;
     const root=join(staging,name);
-    for(const file of ['manifest.json','background.js','content.js','popup.html','popup.js','LICENSE'])
+    for(const file of ['manifest.json','background.js','content.js','popup.html','popup.js','LICENSE','icons/icon.png'])
       copy(join('extensions',family,file),join(root,file));
-    copy('docs/releases/v0.2.0-beta.1.md',join(root,'RELEASE-NOTES.md'));
+    copy(notes,join(root,'RELEASE-NOTES.md'));
     writeFileSync(join(root,'NOTICE-BETA.txt'),
       notice+'Unsigned development WebExtension — not a browser-store release.\n','utf8');
     pack(name,name+'.zip',true);
