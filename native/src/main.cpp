@@ -180,10 +180,45 @@ json WriteExport(const json& request)
             {"location", selectDirectory ? "selected_directory" : "Lagosystem/Exports"}};
 }
 
+
+std::optional<std::string> ConfiguredWebsite()
+{
+    fs::path configuration;
+#ifdef _WIN32
+    const char* local = std::getenv("LOCALAPPDATA");
+    if (!local || !*local) return std::nullopt;
+    configuration = fs::path(local) / "Lagosystem.Bridge" / "site-url.txt";
+#elif defined(__APPLE__)
+    configuration = Home() / "Library/Application Support/Lagosystem Bridge/site-url";
+#else
+    const char* xdg = std::getenv("XDG_CONFIG_HOME");
+    const fs::path config = (xdg && *xdg && fs::path(xdg).is_absolute())
+        ? fs::path(xdg) : Home() / ".config";
+    configuration = config / "lagosystem-bridge" / "site-url";
+#endif
+    std::ifstream file(configuration);
+    if (!file) return std::nullopt;
+    std::string url;
+    if (!std::getline(file, url) || url.size() > 2048) return std::nullopt;
+    if (url.rfind("https://", 0) != 0 &&
+        url.rfind("http://localhost", 0) != 0 &&
+        url.rfind("http://127.0.0.1", 0) != 0)
+        return std::nullopt;
+    for (char ch : url)
+        if (static_cast<unsigned char>(ch) <= 0x20 || ch == '"' || ch == '\\')
+            return std::nullopt;
+    return url;
+}
+
 json Dispatch(const json& input)
 {
     if (!input.is_object()) throw std::runtime_error("invalid_request");
     const std::string action = input.value("action", std::string{});
+    if (action == "config.get")
+    {
+        const auto website = ConfiguredWebsite();
+        return {{"ok", true}, {"siteUrl", website ? json(*website) : json(nullptr)}};
+    }
     if (action == "ping")
         return {{"ok", true}, {"protocolVersion", 1}, {"host", "LocalDeviceBridge"},
                 {"platform",
