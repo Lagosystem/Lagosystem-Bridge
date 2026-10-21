@@ -277,8 +277,17 @@ json PrintTicket(const json& grant, const json& request) {
     settings.timeoutMs = 1200;
     std::unique_ptr<ISerialPort> port = CreateSerialPort();
     port->Open(name, settings);
-    const std::size_t written = port->Write(std::span<const std::byte>(
-        reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
+    std::size_t written = 0;
+    const auto* bytes = reinterpret_cast<const std::byte*>(payload.data());
+    // The generic serial abstraction refuses individual writes larger than 4096 bytes.
+    // A ticket can contain many product lines, so stream it in bounded chunks and
+    // account for partial writes rather than silently losing the end of the receipt.
+    while (written < payload.size()) {
+        const std::size_t count = std::min<std::size_t>(4096, payload.size() - written);
+        const std::size_t sent = port->Write(std::span<const std::byte>(bytes + written, count));
+        if (sent == 0 || sent > count) break;
+        written += sent;
+    }
     port->Close();
     return {{"ok", written == payload.size()}, {"bytesWritten", written},
         {"qrSent", written == payload.size()}, {"deviceResponseVerified", false}};
