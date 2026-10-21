@@ -252,19 +252,19 @@ json PrintTicket(const json& grant, const json& request) {
     // Never accept ESC/POS commands or bytes from the webpage. Render a bounded,
     // ASCII-only text ticket and generate the QR commands exclusively in the host.
     std::string payload("\x1b@", 2);
-    payload.append("\x1ba\x01", 3);
+    payload.append("\x1b\x61\x01", 3);
     payload.append(title).append("\r\n");
-    payload.append("\x1ba\x00", 3);
+    payload.append("\x1b\x61\x00", 3);
     for (const json& value : ticket["lines"]) {
         const std::string line = PrintableText(value, 48);
         payload.append(line).append("\r\n");
     }
     payload.append("\r\n");
-    payload.append("\x1ba\x01", 3);
+    payload.append("\x1b\x61\x01", 3);
     AppendQrCommand(payload, qrData);
     payload.append("\r\n");
     payload.append(qrData).append("\r\n\r\n\r\n");
-    payload.append("\x1ba\x00", 3);
+    payload.append("\x1b\x61\x00", 3);
     if (payload.size() > 10000) throw std::runtime_error("invalid_print_ticket");
 
     const std::string name = grant.at("deviceId").get<std::string>();
