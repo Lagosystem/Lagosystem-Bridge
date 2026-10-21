@@ -31,6 +31,7 @@
         "devices.unpair",
         "devices.probe",
         "devices.testPrint",
+        "devices.printTicket",
         "exports.save"
       ]
     },
@@ -75,6 +76,40 @@
     "selectDirectory": {
       "type": "boolean",
       "description": "If true, ask the local user to choose one writable directory through the OS picker; never accept a path from the webpage."
+    },
+    "ticket": {
+      "type": "object",
+      "required": [
+        "title",
+        "qrData",
+        "lines"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "pattern": "^[\\x20-\\x7E]+$"
+        },
+        "qrData": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "pattern": "^[A-Za-z0-9:_-]+$"
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 150,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 48,
+            "pattern": "^[\\x20-\\x7E]+$"
+          }
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

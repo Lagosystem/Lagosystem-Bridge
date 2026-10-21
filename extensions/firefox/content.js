@@ -2,7 +2,7 @@
 // Generic webpage adapter. Permission decisions live exclusively in the extension background.
 const CHANNEL = "local-device-bridge-v1";
 const VALID = new Set(["detect", "ping", "capabilities", "devices.list", "devices.paired",
-  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
+  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "devices.printTicket", "exports.save"]);
 const origin = location.origin;
 window.addEventListener("message", (event) => {
   if (event.source !== window || event.origin !== origin) return;
@@ -18,7 +18,8 @@ window.addEventListener("message", (event) => {
   const runtime = globalThis.browser?.runtime ?? globalThis.chrome.runtime;
   const payload = { channel: CHANNEL, action: request.action, deviceId: request.deviceId,
     kind: request.kind, profile: request.profile, baudRate: request.baudRate,
-    filename: request.filename, base64: request.base64, selectDirectory: request.selectDirectory };
+    filename: request.filename, base64: request.base64, selectDirectory: request.selectDirectory,
+    ticket: request.ticket };
   runtime.sendMessage(payload).then((response) => {
     window.postMessage({ channel: CHANNEL, direction: "response",
       requestId: request.requestId, payload: response }, origin);
