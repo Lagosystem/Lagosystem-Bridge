@@ -235,7 +235,7 @@ json Dispatch(const json& input)
                 {"capabilities", json::array({"exports.save", "devices.list", "devices.paired",
                     "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "devices.printTicket"})},
                 {"protocols", json::array({"ascii-stream", "escpos", "escp"})},
-                {"printFeatures", json::array({"escpos.qr"}),
+                {"printFeatures", json::array({"escpos.qr"})},
                  {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint", "devices.printTicket"})},
                 {"notImplemented", json::array({"filesystem.pick", "filesystem.read", "os.configure", "vendor.protocols"})}};
     if (action == "exports.save")
