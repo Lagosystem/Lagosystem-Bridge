@@ -233,15 +233,17 @@ json Dispatch(const json& input)
     if (action == "capabilities")
         return {{"ok", true}, {"protocolVersion", 1},
                 {"capabilities", json::array({"exports.save", "devices.list", "devices.paired",
-                    "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"})},
+                    "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "devices.printTicket"})},
                 {"protocols", json::array({"ascii-stream", "escpos", "escp"})},
-                {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint"})},
+                {"printFeatures", json::array({"escpos.qr"}),
+                 {"disabledUntilUserPairing", json::array({"devices.probe", "devices.testPrint", "devices.printTicket"})},
                 {"notImplemented", json::array({"filesystem.pick", "filesystem.read", "os.configure", "vendor.protocols"})}};
     if (action == "exports.save")
         return WriteExport(input);
     if (action == "devices.list" || action == "devices.paired" ||
         action == "devices.pair" || action == "devices.unpair" ||
-        action == "devices.probe" || action == "devices.testPrint")
+        action == "devices.probe" || action == "devices.testPrint" ||
+        action == "devices.printTicket")
         return lagosystem::hardware::DeviceDispatch(input);
     throw std::runtime_error("unknown_or_unpaired_operation");
 }

@@ -5,7 +5,7 @@ const storage = globalThis.browser?.storage ?? globalThis.chrome.storage;
 const HOST = "com.lagosystem.bridge"; // Distribution identifier, not a cloud endpoint.
 const CHANNEL = "local-device-bridge-v1";
 const ALLOWED = new Set(["ping", "capabilities", "devices.list", "devices.paired",
-  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "exports.save"]);
+  "devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "devices.printTicket", "exports.save"]);
 const MAX_MESSAGE = 1024 * 1024;
 
 async function originAllowed(origin) {
@@ -27,7 +27,7 @@ runtime.onMessage.addListener((message, sender, reply) => {
       return { ok: false, error: "origin_not_approved" };
     const request = { action: message.action };
     // Whitelist exact serializable arguments, never pass arbitrary objects/commands.
-    if (["devices.pair", "devices.unpair", "devices.probe", "devices.testPrint"].includes(message.action)) {
+    if (["devices.pair", "devices.unpair", "devices.probe", "devices.testPrint", "devices.printTicket"].includes(message.action)) {
       if (typeof message.deviceId !== "string" || message.deviceId.length > 180)
         return { ok: false, error: "invalid_device" };
       request.deviceId = message.deviceId;
@@ -39,6 +39,17 @@ runtime.onMessage.addListener((message, sender, reply) => {
         request.profile = message.profile;
         request.baudRate = message.baudRate;
       }
+    }
+    if (message.action === "devices.printTicket") {
+      const ticket = message.ticket;
+      if (!ticket || typeof ticket !== "object" || Array.isArray(ticket) ||
+          typeof ticket.title !== "string" || ticket.title.length > 48 ||
+          typeof ticket.qrData !== "string" || ticket.qrData.length > 120 ||
+          !Array.isArray(ticket.lines) || ticket.lines.length < 1 || ticket.lines.length > 150 ||
+          !ticket.lines.every(line => typeof line === "string" && line.length > 0 && line.length <= 48) ||
+          !/^[A-Za-z0-9:_-]+$/.test(ticket.qrData))
+        return { ok: false, error: "invalid_print_ticket" };
+      request.ticket = { title: ticket.title, qrData: ticket.qrData, lines: ticket.lines };
     }
     if (message.action === "exports.save") {
       if (typeof message.filename !== "string" || typeof message.base64 !== "string"
@@ -54,7 +65,7 @@ runtime.onMessage.addListener((message, sender, reply) => {
     const grants = saved.perOriginDevices && typeof saved.perOriginDevices === "object"
       ? saved.perOriginDevices : {};
     const own = Array.isArray(grants[url.origin]) ? grants[url.origin] : [];
-    if (["devices.probe", "devices.testPrint", "devices.unpair"].includes(message.action)
+    if (["devices.probe", "devices.testPrint", "devices.printTicket", "devices.unpair"].includes(message.action)
         && !own.includes(request.deviceId))
       return {ok:false,error:"device_not_paired_for_site"};
     try {

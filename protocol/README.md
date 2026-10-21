@@ -17,9 +17,10 @@
 | `devices.unpair` | `deviceId` | OS-native confirmation and revocation. |
 | `devices.probe` | `deviceId` | Passive ASCII read for a previously paired serial scale; weight is a candidate, not certified. |
 | `devices.testPrint` | `deviceId` | Additional confirmation then sends a short generic serial ESC/POS or ESC/P test. |
+| `devices.printTicket` | `deviceId, ticket:{title, qrData, lines[]}` | Sends a bounded ASCII ticket and ESC/POS QR code through an already paired **thermal/escpos serial** printer after local confirmation; never accepts raw commands. Result means bytes written, **not physical printing verified**. |
 | `exports.save` | `filename,base64,selectDirectory?` | By default writes a new PDF/XML under the current user's `Lagosystem/Exports`. When `selectDirectory:true`, the OS folder picker lets the user select any permitted local, removable, network or cloud-mounted directory for **that export only**. No web-supplied path, overwrite, existing-file read or persistent folder grant. |
 
-Supported pair combinations: `scale / ascii-stream`, `thermal / escpos`, `dotmatrix / escp`. Accepted baud rates: 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200. Actual device communication currently assumes serial transport. Unsupported operations must fail closed.
+Supported pair combinations: `scale / ascii-stream`, `thermal / escpos`, `dotmatrix / escp`. Accepted baud rates: 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200. Actual device communication currently assumes serial transport. QR tickets require ESC/POS QR firmware support; generic ESC/P dot-matrix, USB spooler and network printers are not covered. Paired devices are per OS user; site grants are per approved origin. The bridge is vendor-neutral: callers choose the QR payload. An example POS prefix is `LGS-PV1:<12-digit-counter-order-code>`; the POS must validate the prefix and fetch the order from its authenticated API. The QR does not authorize payment or identify a product. Unsupported operations must fail closed.
 
 For an integration example and error states, consult [English developer guide](../docs/README.en.md) or [guia em português](../docs/README.pt-BR.md). The JSON request schema below is descriptive and does not replace native/extension runtime checks.
 

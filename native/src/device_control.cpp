@@ -5,6 +5,7 @@
 #include "scale_protocol.h"
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
@@ -201,6 +202,88 @@ json TestPrint(const json& grant) {
         {"confirmation", "user_approved"}, {"deviceResponseVerified", false}};
 }
 
+
+std::string PrintableText(const json& value, std::size_t maximum) {
+    if (!value.is_string()) throw std::runtime_error("invalid_print_text");
+    const std::string text = value.get<std::string>();
+    if (text.empty() || text.size() > maximum) throw std::runtime_error("invalid_print_text");
+    for (unsigned char ch : text)
+        if (ch < 0x20 || ch > 0x7e) throw std::runtime_error("invalid_print_text");
+    return text;
+}
+
+std::string TicketQrData(const json& value) {
+    const std::string text = PrintableText(value, 120);
+    for (unsigned char ch : text)
+        if (!std::isalnum(ch) && ch != ':' && ch != '-' && ch != '_')
+            throw std::runtime_error("invalid_qr_data");
+    return text;
+}
+
+void AppendQrCommand(std::string& output, const std::string& qrData) {
+    // ESC/POS GS ( k: QR model 2, 6-dot module size, error correction M.
+    output.append("\x1d\x28\x6b\x04\x00\x31\x41\x32\x00", 9);
+    output.append("\x1d\x28\x6b\x03\x00\x31\x43\x06", 8);
+    output.append("\x1d\x28\x6b\x03\x00\x31\x45\x31", 8);
+    const std::uint16_t length = static_cast<std::uint16_t>(qrData.size() + 3);
+    output.append("\x1d\x28\x6b", 3);
+    output.push_back(static_cast<char>(length & 255u));
+    output.push_back(static_cast<char>((length >> 8) & 255u));
+    output.append("\x31\x50\x30", 3);
+    output.append(qrData);
+    output.append("\x1d\x28\x6b\x03\x00\x31\x51\x30", 8);
+}
+
+json PrintTicket(const json& grant, const json& request) {
+    if (grant.value("kind", std::string{}) != "thermal" ||
+        grant.value("profile", std::string{}) != "escpos")
+        throw std::runtime_error("unsupported_protocol");
+    if (!request.contains("ticket") || !request["ticket"].is_object())
+        throw std::runtime_error("invalid_print_ticket");
+
+    const json& ticket = request["ticket"];
+    if (!ticket.contains("title") || !ticket.contains("qrData") ||
+        !ticket.contains("lines") || !ticket["lines"].is_array() ||
+        ticket["lines"].empty() || ticket["lines"].size() > 150)
+        throw std::runtime_error("invalid_print_ticket");
+    const std::string title = PrintableText(ticket["title"], 48);
+    const std::string qrData = TicketQrData(ticket["qrData"]);
+
+    // Never accept ESC/POS commands or bytes from the webpage. Render a bounded,
+    // ASCII-only text ticket and generate the QR commands exclusively in the host.
+    std::string payload("\x1b@", 2);
+    payload.append("\x1ba\x01", 3);
+    payload.append(title).append("\r\n");
+    payload.append("\x1ba\x00", 3);
+    for (const json& value : ticket["lines"]) {
+        const std::string line = PrintableText(value, 48);
+        payload.append(line).append("\r\n");
+    }
+    payload.append("\r\n");
+    payload.append("\x1ba\x01", 3);
+    AppendQrCommand(payload, qrData);
+    payload.append("\r\n");
+    payload.append(qrData).append("\r\n\r\n\r\n");
+    payload.append("\x1ba\x00", 3);
+    if (payload.size() > 10000) throw std::runtime_error("invalid_print_ticket");
+
+    const std::string name = grant.at("deviceId").get<std::string>();
+    if (!ui::ConfirmDeviceAction("Print a local ticket with QR code?",
+        "This will WRITE a receipt to " + name +
+        ". Confirm the printer is connected, supports ESC/POS QR commands, and has 80 mm paper."))
+        throw std::runtime_error("user_denied");
+    SerialSettings settings;
+    settings.baudRate = grant.at("baudRate").get<unsigned int>();
+    settings.timeoutMs = 1200;
+    std::unique_ptr<ISerialPort> port = CreateSerialPort();
+    port->Open(name, settings);
+    const std::size_t written = port->Write(std::span<const std::byte>(
+        reinterpret_cast<const std::byte*>(payload.data()), payload.size()));
+    port->Close();
+    return {{"ok", written == payload.size()}, {"bytesWritten", written},
+        {"qrSent", written == payload.size()}, {"deviceResponseVerified", false}};
+}
+
 } // namespace
 
 json DeviceDispatch(const json& request) {
@@ -264,6 +347,7 @@ json DeviceDispatch(const json& request) {
         throw std::runtime_error("device_not_detected");
     if (action == "devices.probe") return Probe(grant);
     if (action == "devices.testPrint") return TestPrint(grant);
+    if (action == "devices.printTicket") return PrintTicket(grant, request);
     throw std::runtime_error("unsupported_operation");
 }
 }
